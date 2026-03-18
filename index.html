@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>동아리 - 일상로그</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #242424;
+    --accent: #e8c87a;
+    --accent2: #c4a55a;
+    --text: #f0ece4;
+    --muted: #888;
+    --border: #2e2e2e;
+  }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  /* ── 슬라이드 래퍼 ── */
+  .slides { width: 100%; height: 100vh; position: relative; }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 80px;
+    opacity: 0;
+    transform: translateY(30px);
+    pointer-events: none;
+    transition: opacity .5s ease, transform .5s ease;
+  }
+  .slide.active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+  }
+
+  /* ── 네비게이션 ── */
+  .nav {
+    position: fixed;
+    bottom: 36px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    z-index: 100;
+  }
+  .nav-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .2s, border-color .2s;
+  }
+  .nav-btn:hover { background: var(--accent); color: #000; border-color: var(--accent); }
+  .nav-dots { display: flex; gap: 8px; }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+    cursor: pointer;
+    transition: background .3s, transform .3s;
+  }
+  .dot.active { background: var(--accent); transform: scale(1.3); }
+
+  /* 슬라이드 번호 */
+  .slide-num {
+    position: fixed;
+    top: 28px; right: 40px;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: .1em;
+  }
+
+  /* ── 공통 타이포 ── */
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: .25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+  .heading {
+    font-size: clamp(36px, 5vw, 64px);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -.02em;
+  }
+  .sub {
+    font-size: clamp(14px, 1.6vw, 18px);
+    color: #aaa;
+    line-height: 1.8;
+    font-weight: 300;
+  }
+  .divider {
+    width: 48px; height: 2px;
+    background: var(--accent);
+    margin: 24px 0;
+  }
+
+  /* ── 슬라이드 1 : 커버 ── */
+  #s1 { background: var(--bg); text-align: center; }
+  #s1 .camera-icon {
+    font-size: 64px;
+    margin-bottom: 24px;
+    animation: float 3s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  #s1 .badge {
+    display: inline-block;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 6px 18px;
+    font-size: 12px;
+    letter-spacing: .15em;
+    color: var(--muted);
+    margin-top: 32px;
+  }
+  #s1 .name-kr {
+    font-size: clamp(56px, 8vw, 100px);
+    font-weight: 900;
+    letter-spacing: -.04em;
+    background: linear-gradient(135deg, var(--accent) 0%, #fff 60%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  #s1 .tagline {
+    font-size: clamp(14px, 1.8vw, 20px);
+    color: var(--muted);
+    font-weight: 300;
+    letter-spacing: .05em;
+    margin-top: 12px;
+  }
+
+  /* ── 슬라이드 2 : 소개 ── */
+  #s2 { align-items: flex-start; }
+  #s2 .divider { width: 50%; max-width: 700px; }
+
+  #s2 .quote {
+    font-size: clamp(24px, 3vw, 40px);
+    font-weight: 700;
+    line-height: 1.5;
+    max-width: 700px;
+  }
+  #s2 .quote em {
+    font-style: normal;
+    color: var(--accent);
+  }
+  #s2 .desc {
+    margin-top: 28px;
+    max-width: 620px;
+    font-size: 15px;
+    color: #aaa;
+    line-height: 1.9;
+    font-weight: 300;
+  }
+  #s2 .tags {
+    margin-top: 32px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  #s2 .tag {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  /* ── 슬라이드 3 : 온라인 활동 ── */
+  #s3 { align-items: flex-start; }
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    width: 100%;
+    max-width: 880px;
+    margin-top: 8px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 24px;
+    transition: border-color .3s, transform .3s;
+  }
+  .card:hover { border-color: var(--accent2); transform: translateY(-4px); }
+  .card .icon { font-size: 32px; margin-bottom: 14px; }
+  .card h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+  .card p { font-size: 13px; color: #888; line-height: 1.8; }
+  .card .accent-line {
+    width: 44px; height: 2px;
+    background: var(--accent);
+    margin-bottom: 14px;
+  }
+
+  /* ── 슬라이드 4 : 오프라인 활동 ── */
+  #s4 { align-items: flex-start; }
+  .timeline {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    max-width: 680px;
+    width: 100%;
+  }
+  .tl-item {
+    display: flex;
+    gap: 24px;
+    position: relative;
+    padding-bottom: 32px;
+  }
+  .tl-item:last-child { padding-bottom: 0; }
+  .tl-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+  .tl-dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+  .tl-line {
+    width: 1px;
+    flex: 1;
+    background: var(--border);
+    margin-top: 6px;
+  }
+  .tl-item:last-child .tl-line { display: none; }
+  .tl-content h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .tl-content p { font-size: 13px; color: #888; line-height: 1.8; }
+
+  /* ── 슬라이드 5 : 가입 대상 ── */
+  #s5 { align-items: flex-start; }
+  .member-list {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 700px;
+    width: 100%;
+  }
+  .member-item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 24px;
+    transition: border-color .3s;
+  }
+  .member-item:hover { border-color: var(--accent2); }
+  .member-item .mi-icon { font-size: 28px; flex-shrink: 0; }
+  .member-item .mi-text h3 { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+  .member-item .mi-text p { font-size: 12px; color: #777; }
+
+  /* ── 슬라이드 7 : 마무리 ── */
+  #s7 { text-align: center; }
+  #s7 .big { font-size: clamp(40px, 6vw, 80px); font-weight: 900; letter-spacing: -.03em; }
+  #s7 .big span { color: var(--accent); }
+  #s7 .apply-box {
+    margin-top: 40px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 48px;
+    display: inline-block;
+  }
+  #s7 .apply-box .a-label { font-size: 11px; letter-spacing: .2em; color: var(--muted); margin-bottom: 8px; }
+  #s7 .apply-box .a-value { font-size: 18px; font-weight: 700; }
+  #s7 .period {
+    margin-top: 20px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  /* 카카오 버튼 */
+  .kakao-btn {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 12px 28px;
+    background: var(--accent);
+    color: #000;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: .05em;
+    border-radius: 100px;
+    text-decoration: none;
+    transition: opacity .2s, transform .2s;
+  }
+  .kakao-btn:hover { opacity: .85; transform: translateY(-2px); }
+  .kakao-btn:active { opacity: 1; transform: translateY(0); }
+  .kakao-btn:visited { color: #000; }
+
+  /* 키보드 힌트 */
+  .hint {
+    position: fixed;
+    top: 28px; left: 40px;
+    font-size: 11px;
+    color: #444;
+    letter-spacing: .05em;
+  }
+</style>
+</head>
+<body>
+
+<div class="hint">방향키 또는 ← → 클릭으로 이동</div>
+<div class="slide-num"><span id="cur">1</span> / <span id="total">7</span></div>
+
+<div class="slides">
+
+  <!-- 슬라이드 1: 커버 -->
+  <div class="slide active" id="s1">
+    <div class="camera-icon">📷</div>
+    <p class="eyebrow">서강대학교 AIㆍSW 대학원 신규 동아리</p>
+    <div class="name-kr">일상로그</div>
+    <p class="tagline">오늘 하루를 기록하고, 함께 나누는 사진 모임</p>
+    <div class="badge">함께할 구성원 상시 모집</div>
+  </div>
+
+  <!-- 슬라이드 2: 소개 -->
+  <div class="slide" id="s2">
+    <p class="eyebrow">동아리 소개</p>
+    <div class="quote">
+      <em>"오늘 이거 찍었는데 예쁘더라."</em>
+    </div>
+    <div class="divider"></div>
+    <p class="desc">
+      카메라든 핸드폰이든, 찍는 걸 좋아하든 찍히는 걸 좋아하든 상관없습니다.<br>
+      거창한 목표 없이, 일상 속 예쁜 순간을 함께 기록하고 나누는 사진 모임입니다.<br>
+      사진을 잘 찍어야 한다는 부담 없이, 그냥 오늘 찍은 사진 하나면 충분합니다.
+    </p>
+    <div class="tags">
+      <span class="tag"># 핸드폰 OK</span>
+      <span class="tag"># 카메라 OK</span>
+      <span class="tag"># 부담 없는 활동</span>
+      <span class="tag"># 일상 기록</span>
+      <span class="tag"># 사진 공유</span>
+    </div>
+  </div>
+
+  <!-- 슬라이드 3: 온라인 활동 -->
+  <div class="slide" id="s3">
+    <p class="eyebrow">활동 방식 — 온라인</p>
+    <div class="heading" style="font-size:clamp(24px,3vw,40px); margin-bottom:4px;">카톡방에서 매일 이어지는 일상</div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="icon">💬</div>
+        <div class="accent-line"></div>
+        <h3>일상 사진 자유 공유</h3>
+        <p>오늘 날씨 좋더라, 음식이 예쁘게 찍혔다, 고양이 만났다.<br>사소한 순간도 환영합니다.</p>
+      </div>
+      <div class="card">
+        <div class="icon">🌟</div>
+        <div class="accent-line"></div>
+        <h3>월간 최애 사진 자랑</h3>
+        <p>매달 한 번, 이번 달에 가장 마음에 드는 사진 한 장을 올려주세요.<br>잘 찍은 사진이 아니어도 됩니다.</p>
+      </div>
+      <div class="card">
+        <div class="icon">🎨</div>
+        <div class="accent-line"></div>
+        <h3>요즘 꽂힌 사진 스타일</h3>
+        <p>필름 감성, 밝고 화사한 톤, 어두운 무드 등 요즘 마음에 드는 사진 분위기나 레퍼런스를 알려주세요.</p>
+      </div>
+      <div class="card">
+        <div class="icon">📍</div>
+        <div class="accent-line"></div>
+        <h3>나만의 촬영 스팟 공유</h3>
+        <p>내가 찾아낸 예쁜 장소, 잘 나오는 각도, 숨은 포토스팟을 공유해 주세요.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 슬라이드 4: 오프라인 활동 -->
+  <div class="slide" id="s4">
+    <p class="eyebrow">활동 방식 — 오프라인</p>
+    <div class="heading" style="font-size:clamp(24px,3vw,40px); margin-bottom:20px;">부담 없이, 가볍게 만납니다</div>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-left">
+          <div class="tl-dot"></div>
+          <div class="tl-line"></div>
+        </div>
+        <div class="tl-content">
+          <h3>📸 출사</h3>
+          <p>같은 곳에서, 저마다 다른 사진을 찍는 시간.<br>같은 풍경도 누가 찍느냐에 따라 전혀 다른 사진이 됩니다.</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left">
+          <div class="tl-dot"></div>
+          <div class="tl-line"></div>
+        </div>
+        <div class="tl-content">
+          <h3>🌸 인물 사진</h3>
+          <p>찍는 사람과 찍히는 사람이 함께 만드는 시간.<br>사진 속 주인공이 되는 것도, 이 모임의 일부입니다.</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left">
+          <div class="tl-dot"></div>
+          <div class="tl-line"></div>
+        </div>
+        <div class="tl-content">
+          <h3>⚡ 번개 모임</h3>
+          <p>갑자기 가고 싶은 곳이 생겼을 때, 망설이지 않고 함께 즐기는 시간.<br>날씨 좋은 날, 여유가 생긴 오후 등 이유는 뭐든 괜찮습니다. 오늘의 모임장이 되어주세요.</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left">
+          <div class="tl-dot"></div>
+        </div>
+        <div class="tl-content">
+          <h3>🖼️ 사진 전시회 관람</h3>
+          <p>함께 전시를 둘러보고 이야기 나누는 시간.<br>다양한 사진을 보며 새로운 시선을 경험할 수 있습니다.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 슬라이드 5: 가입 대상 -->
+  <div class="slide" id="s5">
+    <p class="eyebrow">가입 대상</p>
+    <div class="heading" style="font-size:clamp(24px,3vw,40px); margin-bottom:20px;">이런 분이라면 누구든 환영합니다</div>
+    <div class="member-list">
+      <div class="member-item">
+        <div class="mi-icon">📷</div>
+        <div class="mi-text">
+          <h3>카메라 장비를 가진 분</h3>
+          <p>DSLR, 미러리스, 필름카메라 모두 환영합니다.</p>
+        </div>
+      </div>
+      <div class="member-item">
+        <div class="mi-icon">📱</div>
+        <div class="mi-text">
+          <h3>핸드폰으로 사진 찍는 걸 좋아하는 분</h3>
+          <p>이미 충분히 좋은 카메라를 가지고 계십니다.</p>
+        </div>
+      </div>
+      <div class="member-item">
+        <div class="mi-icon">🌸</div>
+        <div class="mi-text">
+          <h3>찍히는 걸 좋아하는 분</h3>
+          <p>피사체도 동아리의 중요한 멤버입니다.</p>
+        </div>
+      </div>
+      <div class="member-item">
+        <div class="mi-icon">🖼️</div>
+        <div class="mi-text">
+          <h3>예쁜 사진 보는 걸 좋아하는 분</h3>
+          <p>직접 찍지 않아도, 감상하고 반응하는 것만으로도 충분합니다.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 슬라이드 6: 지원금 사용처 -->
+  <div class="slide" id="s6" style="align-items: flex-start;">
+    <p class="eyebrow">활동 지원</p>
+    <div class="heading" style="font-size:clamp(24px,3vw,40px); margin-bottom:20px;">지원금은 아래 항목에 보태 씁니다.</div>
+    <div class="member-list">
+      <div class="member-item">
+        <div class="mi-icon">🎟️</div>
+        <div class="mi-text">
+          <h3>전시회 입장권</h3>
+        </div>
+      </div>
+      <div class="member-item">
+        <div class="mi-icon">☕</div>
+        <div class="mi-text">
+          <h3>카페 음료</h3>
+        </div>
+      </div>
+      <div class="member-item">
+        <div class="mi-icon">🖥️</div>
+        <div class="mi-text">
+          <h3>보정 프로그램</h3>
+        </div>
+      </div>
+      <div class="member-item">
+        <div class="mi-icon">🖼️</div>
+        <div class="mi-text">
+          <h3>인화 / 포토북</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 슬라이드 7: 마무리 -->
+  <div class="slide" id="s7">
+    <div class="big">일상의 모든 순간이<br><span>사진</span>이 됩니다.</div>
+    <div class="apply-box">
+      <div class="a-label">참여 방법</div>
+      <div class="a-value">카카오톡 오픈채팅</div>
+      <a href="https://open.kakao.com/o/gNlWzTli" target="_blank" class="kakao-btn">
+        💬 오픈채팅 바로가기
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<!-- 네비게이션 -->
+<div class="nav">
+  <button class="nav-btn" id="prev">←</button>
+  <div class="nav-dots" id="dots"></div>
+  <button class="nav-btn" id="next">→</button>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  document.getElementById('total').textContent = total;
+
+  let cur = 0;
+
+  const dotsEl = document.getElementById('dots');
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.addEventListener('click', () => go(i));
+    dotsEl.appendChild(d);
+  });
+
+  function go(n) {
+    slides[cur].classList.remove('active');
+    dotsEl.children[cur].classList.remove('active');
+    cur = (n + total) % total;
+    slides[cur].classList.add('active');
+    dotsEl.children[cur].classList.add('active');
+    document.getElementById('cur').textContent = cur + 1;
+  }
+
+  document.getElementById('prev').addEventListener('click', () => go(cur - 1));
+  document.getElementById('next').addEventListener('click', () => go(cur + 1));
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') go(cur + 1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   go(cur - 1);
+  });
+
+  // 터치 스와이프
+  let tx = 0;
+  document.addEventListener('touchstart', e => tx = e.touches[0].clientX);
+  document.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - tx;
+    if (Math.abs(dx) > 50) go(cur + (dx < 0 ? 1 : -1));
+  });
+</script>
+</body>
+</html>
