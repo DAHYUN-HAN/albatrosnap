@@ -91,6 +91,7 @@
     font-size: 12px;
     color: var(--muted);
     letter-spacing: .1em;
+    z-index: 100;
   }
 
   /* ── 공통 타이포 ── */
@@ -106,12 +107,6 @@
     font-weight: 900;
     line-height: 1.1;
     letter-spacing: -.02em;
-  }
-  .sub {
-    font-size: clamp(14px, 1.6vw, 18px);
-    color: #aaa;
-    line-height: 1.8;
-    font-weight: 300;
   }
   .divider {
     width: 48px; height: 2px;
@@ -161,17 +156,13 @@
   /* ── 슬라이드 2 : 소개 ── */
   #s2 { align-items: flex-start; }
   #s2 .divider { width: 50%; max-width: 700px; }
-
   #s2 .quote {
     font-size: clamp(24px, 3vw, 40px);
     font-weight: 700;
     line-height: 1.5;
     max-width: 700px;
   }
-  #s2 .quote em {
-    font-style: normal;
-    color: var(--accent);
-  }
+  #s2 .quote em { font-style: normal; color: var(--accent); }
   #s2 .desc {
     margin-top: 28px;
     max-width: 620px;
@@ -228,23 +219,16 @@
     margin-top: 12px;
     display: flex;
     flex-direction: column;
-    gap: 0;
     max-width: 680px;
     width: 100%;
   }
   .tl-item {
     display: flex;
     gap: 24px;
-    position: relative;
     padding-bottom: 32px;
   }
   .tl-item:last-child { padding-bottom: 0; }
-  .tl-left {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0;
-  }
+  .tl-left { display: flex; flex-direction: column; align-items: center; }
   .tl-dot {
     width: 14px; height: 14px;
     border-radius: 50%;
@@ -253,8 +237,7 @@
     margin-top: 4px;
   }
   .tl-line {
-    width: 1px;
-    flex: 1;
+    width: 1px; flex: 1;
     background: var(--border);
     margin-top: 6px;
   }
@@ -301,11 +284,6 @@
   }
   #s7 .apply-box .a-label { font-size: 11px; letter-spacing: .2em; color: var(--muted); margin-bottom: 8px; }
   #s7 .apply-box .a-value { font-size: 18px; font-weight: 700; }
-  #s7 .period {
-    margin-top: 20px;
-    font-size: 13px;
-    color: var(--muted);
-  }
 
   /* 카카오 버튼 */
   .kakao-btn {
@@ -332,6 +310,66 @@
     font-size: 11px;
     color: #444;
     letter-spacing: .05em;
+  }
+
+  /* ── 모바일 반응형 ── */
+  @media (max-width: 600px) {
+    .hint { display: none; }
+
+    .slide-num { top: 20px; right: 24px; }
+
+    .slide {
+      justify-content: flex-start;
+      align-items: flex-start;
+      padding: 56px 24px 100px;
+      overflow-y: auto;
+    }
+    #s1, #s7 {
+      justify-content: center;
+      align-items: center;
+    }
+
+    .nav { bottom: 24px; gap: 16px; }
+    .nav-btn { width: 52px; height: 52px; font-size: 20px; }
+    .nav-btn:hover { background: var(--surface2); color: var(--text); border-color: var(--border); }
+    .nav-btn:active { background: var(--accent); color: #000; border-color: var(--accent); }
+    .nav-dots { gap: 6px; }
+    .dot { width: 7px; height: 7px; }
+
+    .eyebrow { font-size: 10px; margin-bottom: 12px; }
+    .divider { margin: 20px 0; }
+
+    #s1 .camera-icon { font-size: 48px; margin-bottom: 20px; }
+    #s1 .badge { margin-top: 24px; font-size: 11px; }
+
+    #s2 .divider { width: 100%; }
+    #s2 .desc { font-size: 14px; margin-top: 20px; }
+    #s2 .tags { margin-top: 24px; gap: 8px; }
+    #s2 .tag { font-size: 12px; padding: 5px 14px; }
+
+    .card-grid { gap: 10px; margin-top: 4px; }
+    .card { border-radius: 14px; padding: 18px 16px; }
+    .card .icon { font-size: 24px; margin-bottom: 10px; }
+    .card h3 { font-size: 13px; }
+    .card p { font-size: 11px; }
+    .card .accent-line { width: 36px; margin-bottom: 10px; }
+
+    .timeline { margin-top: 4px; }
+    .tl-item { gap: 16px; padding-bottom: 24px; }
+    .tl-dot { width: 12px; height: 12px; }
+    .tl-content h3 { font-size: 15px; }
+    .tl-content p { font-size: 12px; }
+
+    .member-list { margin-top: 4px; gap: 10px; }
+    .member-item { gap: 16px; padding: 14px 18px; }
+    .member-item .mi-icon { font-size: 24px; }
+    .member-item .mi-text h3 { font-size: 14px; }
+    .member-item .mi-text p { font-size: 11px; }
+
+    #s7 .big { font-size: clamp(32px, 9vw, 52px); }
+    #s7 .apply-box { margin-top: 32px; padding: 22px 32px; }
+    #s7 .apply-box .a-label { font-size: 10px; }
+    #s7 .apply-box .a-value { font-size: 16px; }
   }
 </style>
 </head>
@@ -375,19 +413,19 @@
   <!-- 슬라이드 3: 온라인 활동 -->
   <div class="slide" id="s3">
     <p class="eyebrow">활동 방식 — 온라인</p>
-    <div class="heading" style="font-size:clamp(24px,3vw,40px); margin-bottom:4px;">카톡방에서 매일 이어지는 일상</div>
+    <div class="heading" style="font-size:clamp(20px,3vw,40px); margin-bottom:8px;">카톡방에서 매일 이어지는 일상</div>
     <div class="card-grid">
       <div class="card">
         <div class="icon">💬</div>
         <div class="accent-line"></div>
         <h3>일상 사진 자유 공유</h3>
-        <p>오늘 날씨 좋더라, 음식이 예쁘게 찍혔다, 고양이 만났다.<br>사소한 순간도 환영합니다.</p>
+        <p>오늘 날씨 좋더라, 음식이 예쁘게 찍혔다, 고양이 만났다. 사소한 순간도 환영합니다.</p>
       </div>
       <div class="card">
         <div class="icon">🌟</div>
         <div class="accent-line"></div>
         <h3>월간 최애 사진 자랑</h3>
-        <p>매달 한 번, 이번 달에 가장 마음에 드는 사진 한 장을 올려주세요.<br>잘 찍은 사진이 아니어도 됩니다.</p>
+        <p>매달 한 번, 이번 달에 가장 마음에 드는 사진 한 장을 올려주세요. 잘 찍은 사진이 아니어도 됩니다.</p>
       </div>
       <div class="card">
         <div class="icon">🎨</div>
@@ -407,7 +445,7 @@
   <!-- 슬라이드 4: 오프라인 활동 -->
   <div class="slide" id="s4">
     <p class="eyebrow">활동 방식 — 오프라인</p>
-    <div class="heading" style="font-size:clamp(24px,3vw,40px); margin-bottom:20px;">부담 없이, 가볍게 만납니다</div>
+    <div class="heading" style="font-size:clamp(20px,3vw,40px); margin-bottom:20px;">부담 없이, 가볍게 만납니다</div>
     <div class="timeline">
       <div class="tl-item">
         <div class="tl-left">
@@ -454,7 +492,7 @@
   <!-- 슬라이드 5: 가입 대상 -->
   <div class="slide" id="s5">
     <p class="eyebrow">가입 대상</p>
-    <div class="heading" style="font-size:clamp(24px,3vw,40px); margin-bottom:20px;">이런 분이라면 누구든 환영합니다</div>
+    <div class="heading" style="font-size:clamp(20px,3vw,40px); margin-bottom:20px;">이런 분이라면 누구든 환영합니다</div>
     <div class="member-list">
       <div class="member-item">
         <div class="mi-icon">📷</div>
@@ -490,31 +528,23 @@
   <!-- 슬라이드 6: 지원금 사용처 -->
   <div class="slide" id="s6" style="align-items: flex-start;">
     <p class="eyebrow">활동 지원</p>
-    <div class="heading" style="font-size:clamp(24px,3vw,40px); margin-bottom:20px;">지원금은 아래 항목에 보태 씁니다.</div>
+    <div class="heading" style="font-size:clamp(20px,3vw,40px); margin-bottom:20px;">지원금은 아래 항목에 보태 씁니다.</div>
     <div class="member-list">
       <div class="member-item">
         <div class="mi-icon">🎟️</div>
-        <div class="mi-text">
-          <h3>전시회 입장권</h3>
-        </div>
+        <div class="mi-text"><h3>전시회 입장권</h3></div>
       </div>
       <div class="member-item">
         <div class="mi-icon">☕</div>
-        <div class="mi-text">
-          <h3>카페 음료</h3>
-        </div>
+        <div class="mi-text"><h3>카페 음료</h3></div>
       </div>
       <div class="member-item">
         <div class="mi-icon">🖥️</div>
-        <div class="mi-text">
-          <h3>보정 프로그램</h3>
-        </div>
+        <div class="mi-text"><h3>보정 프로그램</h3></div>
       </div>
       <div class="member-item">
         <div class="mi-icon">🖼️</div>
-        <div class="mi-text">
-          <h3>인화 / 포토북</h3>
-        </div>
+        <div class="mi-text"><h3>인화 / 포토북</h3></div>
       </div>
     </div>
   </div>
@@ -562,6 +592,7 @@
     slides[cur].classList.add('active');
     dotsEl.children[cur].classList.add('active');
     document.getElementById('cur').textContent = cur + 1;
+    slides[cur].scrollTop = 0;
   }
 
   document.getElementById('prev').addEventListener('click', () => go(cur - 1));
