@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>활동 기록 · 알바트로스냅</title>
+<link rel="icon" type="image/x-icon" href="icon2.ico">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #242424;
+    --accent: #e8c87a;
+    --accent2: #c4a55a;
+    --text: #f0ece4;
+    --muted: #888;
+    --border: #2e2e2e;
+  }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  .ico { width: 1em; height: 1em; object-fit: contain; display: inline-block; flex-shrink: 0; }
+  .ico-inline { width: 1.35em; height: 1.35em; vertical-align: -.32em; margin-right: 8px; }
+
+  .wrap { max-width: 940px; margin: 0 auto; padding: 48px 32px 96px; }
+
+  /* ── 상단 ── */
+  .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 48px; }
+  .back-link {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12px; letter-spacing: .1em; color: var(--muted);
+    text-decoration: none; transition: color .25s;
+  }
+  .back-link:hover { color: var(--accent); }
+
+  .eyebrow { font-size: 11px; letter-spacing: .25em; color: var(--accent); margin-bottom: 14px; }
+  .page-title { font-size: clamp(32px, 5vw, 52px); font-weight: 900; letter-spacing: -.03em; line-height: 1.15; }
+  .page-title span { color: var(--accent); }
+  .page-desc { margin-top: 16px; font-size: 14px; color: var(--muted); line-height: 1.9; }
+
+  /* ── 연도 / 반기 선택 ──
+     해가 쌓여도 한 줄이 길어지지 않도록 연도와 반기를 따로 고른다. */
+  .picker { margin-top: 44px; display: flex; flex-direction: column; gap: 12px; }
+  .term-row { display: flex; align-items: center; gap: 14px; }
+  .row-label {
+    flex-shrink: 0; width: 30px;
+    font-size: 11px; letter-spacing: .2em; color: #5c5c5c;
+  }
+  .terms { display: flex; gap: 10px; flex-wrap: wrap; }
+  /* 반기 버튼은 연도보다 한 단계 작게 */
+  #halves .term-btn { padding: 7px 18px; font-size: 13px; }
+  .term-btn {
+    font-family: inherit;
+    background: var(--surface); border: 1px solid var(--border); color: var(--muted);
+    border-radius: 100px; padding: 10px 24px;
+    font-size: 14px; font-weight: 700; letter-spacing: .05em;
+    cursor: pointer;
+    transition: color .25s, border-color .25s, background .25s;
+  }
+  .term-btn:hover { color: var(--text); border-color: var(--accent2); }
+  .term-btn.active { background: var(--accent); border-color: var(--accent); color: #000; }
+  .term-btn .cnt { font-size: 11px; font-weight: 400; opacity: .7; margin-left: 6px; }
+
+  .term-summary {
+    margin-top: 20px; padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px; color: var(--muted); letter-spacing: .08em;
+  }
+  .term-summary b { color: var(--accent); font-weight: 700; }
+
+  /* ── 활동 목록 ── */
+  .act-list { margin-top: 28px; display: flex; flex-direction: column; gap: 12px; }
+  .act-item {
+    display: flex; align-items: center; gap: 20px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 16px 20px;
+    cursor: pointer; text-align: left; width: 100%;
+    font-family: inherit; color: inherit;
+    transition: border-color .3s, transform .3s, background .3s;
+  }
+  .act-item:hover { border-color: var(--accent2); transform: translateX(4px); background: #1d1d1d; }
+
+  .act-thumb {
+    width: 84px; height: 84px; flex-shrink: 0;
+    border-radius: 10px; overflow: hidden;
+    background: var(--surface2);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .act-thumb img.shot { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .act-thumb .ico { font-size: 30px; opacity: .55; }
+
+  .act-body { flex: 1; min-width: 0; }
+  .act-date { font-size: 11px; letter-spacing: .12em; color: var(--accent); margin-bottom: 6px; }
+
+  /* 아직 다녀오지 않은 활동 표시 */
+  .soon {
+    display: inline-block; margin-left: 10px;
+    background: var(--accent); color: #000;
+    border-radius: 100px; padding: 2px 9px;
+    font-size: 10px; font-weight: 700; letter-spacing: .1em;
+    vertical-align: 1px;
+  }
+  .ov-date .soon { font-size: 11px; padding: 3px 11px; }
+  .act-item.is-soon { border-style: dashed; }
+  .act-item.is-soon .act-thumb { opacity: .85; }
+  .act-title { font-size: 16px; font-weight: 700; margin-bottom: 5px; }
+  .act-title .act-sub {
+    display: inline-block; margin-left: 10px;
+    font-size: 12px; font-weight: 400; color: var(--accent2); letter-spacing: .04em;
+  }
+  .act-meta { font-size: 12px; color: #777; display: flex; gap: 14px; flex-wrap: wrap; }
+  .act-meta span { display: inline-flex; align-items: center; gap: 5px; }
+  .act-meta .ico { font-size: 13px; }
+
+  .act-go { font-size: 18px; color: var(--border); flex-shrink: 0; transition: color .3s; }
+  .act-item:hover .act-go { color: var(--accent); }
+
+  /* 비어있는 학기 */
+  .empty {
+    margin-top: 28px;
+    border: 1px dashed var(--border); border-radius: 14px;
+    padding: 56px 24px; text-align: center;
+  }
+  .empty .ico { font-size: 40px; opacity: .35; }
+  .empty p { margin-top: 16px; font-size: 13px; color: #666; line-height: 1.9; }
+
+  /* ── 갤러리 오버레이 ── */
+  .overlay {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(8,8,8,.97);
+    overflow-y: auto;
+    opacity: 0; pointer-events: none;
+    transition: opacity .3s;
+  }
+  .overlay.open { opacity: 1; pointer-events: all; }
+
+  .ov-inner { max-width: 1040px; margin: 0 auto; padding: 64px 32px 80px; }
+  .ov-close {
+    position: fixed; top: 24px; right: 28px; z-index: 10;
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+    font-size: 20px; font-family: inherit; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .2s, border-color .2s, color .2s;
+  }
+  .ov-close:hover { background: var(--accent); border-color: var(--accent); color: #000; }
+
+  .ov-date { font-size: 11px; letter-spacing: .2em; color: var(--accent); margin-bottom: 12px; }
+  .ov-title { font-size: clamp(26px, 4vw, 40px); font-weight: 900; letter-spacing: -.02em; }
+  .ov-sub { margin-top: 10px; font-size: 15px; color: var(--accent2); letter-spacing: .06em; }
+  .ov-meta { margin-top: 14px; font-size: 13px; color: #777; display: flex; gap: 18px; flex-wrap: wrap; }
+  .ov-meta span { display: inline-flex; align-items: center; gap: 6px; }
+  .ov-desc { margin-top: 22px; font-size: 14px; color: var(--muted); line-height: 1.9; max-width: 640px; }
+
+  /* ── 상세 머리말 : 포스터(왼쪽) + 글(오른쪽) ── */
+  /* 포스터는 그 활동의 얼굴이라 다른 자료와 섞지 않고 여기에만 크게 세워 둔다. */
+  .ov-hero { margin-bottom: 40px; }
+  .ov-hero.has-poster {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 36px;
+    align-items: start;
+  }
+  .ov-hero .ov-poster { margin: 0; }
+  .ov-hero .ov-poster img {
+    width: 100%; max-height: none;
+    border-radius: 12px; border: 1px solid var(--border);
+    display: block; cursor: pointer;
+    transition: border-color .3s, transform .3s;
+  }
+  .ov-hero .ov-poster img:hover { border-color: var(--accent2); transform: translateY(-3px); }
+  .ov-hero .ov-head { padding-top: 4px; }
+  .ov-hero .ov-desc { max-width: none; }
+
+  /* 섹션 제목 (참고 / 사진) */
+  .sec-head {
+    display: flex; align-items: baseline; gap: 12px;
+    margin-bottom: 14px;
+    padding-top: 22px;
+    border-top: 1px solid var(--border);
+  }
+  .sec-head h3 { font-size: 13px; font-weight: 700; letter-spacing: .14em; color: var(--accent); }
+  .sec-head .hint { font-size: 11px; color: #666; letter-spacing: .06em; }
+
+  /* ── 참고 (카드뉴스) ── */
+  /* 순서대로 넘겨 보는 자료라, 정사각형 사진 그리드와 확실히 다르게 보이도록
+     세로 카드를 가로로 늘어놓는다. */
+  .press { margin-bottom: 36px; }
+
+  .press-strip {
+    display: flex; gap: 12px;
+    overflow-x: auto; overflow-y: hidden;
+    padding-bottom: 12px;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .press-strip::-webkit-scrollbar { height: 6px; }
+  .press-strip::-webkit-scrollbar-thumb { background: var(--border); border-radius: 100px; }
+
+  .press-card {
+    position: relative; flex: 0 0 auto;
+    width: 210px;
+    border-radius: 10px; overflow: hidden;
+    border: 1px solid var(--border); background: var(--surface);
+    cursor: pointer; scroll-snap-align: start;
+    transition: border-color .3s, transform .3s;
+  }
+  .press-card:hover { border-color: var(--accent2); transform: translateY(-3px); }
+  .press-card img { width: 100%; display: block; }
+  .press-card .no {
+    position: absolute; top: 8px; left: 8px;
+    background: rgba(0,0,0,.65); color: var(--text);
+    border-radius: 100px; padding: 2px 9px;
+    font-size: 10px; letter-spacing: .08em;
+  }
+
+  .photo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+  }
+  .photo {
+    aspect-ratio: 1;
+    border-radius: 12px; overflow: hidden;
+    background: var(--surface); border: 1px solid var(--border);
+    cursor: pointer; position: relative;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color .3s, transform .3s;
+  }
+  .photo:hover { border-color: var(--accent2); transform: translateY(-3px); }
+  .photo img.shot { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .no-photo { font-size: 13px; color: #666; letter-spacing: .05em; }
+
+  /* ── 라이트박스 ── */
+  .lightbox {
+    position: fixed; inset: 0; z-index: 300;
+    background: rgba(0,0,0,.96);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity .25s;
+  }
+  .lightbox.open { opacity: 1; pointer-events: all; }
+  .lightbox img { max-width: 90vw; max-height: 84vh; object-fit: contain; border-radius: 6px; }
+  .lb-nav {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 52px; height: 52px; border-radius: 50%;
+    background: rgba(36,36,36,.85); border: 1px solid var(--border); color: var(--text);
+    font-size: 20px; font-family: inherit; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .2s, color .2s;
+  }
+  .lb-nav:hover { background: var(--accent); color: #000; }
+  .lb-prev { left: 28px; }
+  .lb-next { right: 28px; }
+  .lb-close { position: absolute; top: 24px; right: 28px; }
+  .lb-count {
+    position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+    font-size: 12px; color: var(--muted); letter-spacing: .15em;
+  }
+
+  /* ── 모바일 ── */
+  @media (max-width: 600px) {
+    .wrap { padding: 32px 20px 72px; }
+    .top-bar { margin-bottom: 32px; }
+    .terms { margin-top: 32px; gap: 8px; }
+    .term-btn { padding: 8px 18px; font-size: 13px; }
+
+    .act-item { gap: 14px; padding: 13px 15px; border-radius: 12px; }
+    .act-thumb { width: 64px; height: 64px; }
+    .act-thumb .ico { font-size: 24px; }
+    .act-title { font-size: 14px; }
+    .act-title .act-sub { display: block; margin-left: 0; margin-top: 3px; font-size: 11px; }
+    .ov-sub { font-size: 13px; }
+    .act-meta { font-size: 11px; gap: 10px; }
+    .act-go { display: none; }
+
+    .ov-inner { padding: 56px 20px 64px; }
+    .ov-close { top: 16px; right: 16px; width: 38px; height: 38px; font-size: 18px; }
+    .photo-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+
+    /* 좁은 화면에서는 포스터를 위, 글을 아래로 */
+    .ov-hero { margin-bottom: 30px; }
+    .ov-hero.has-poster { grid-template-columns: 1fr; gap: 22px; }
+    .ov-hero .ov-poster { max-width: 260px; }
+    .sec-head { padding-top: 18px; }
+    .press { margin-bottom: 28px; }
+    .press-card { width: 160px; }
+
+    .lb-nav { width: 40px; height: 40px; font-size: 16px; }
+    .lb-prev { left: 10px; }
+    .lb-next { right: 10px; }
+    .lb-close { top: 16px; right: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="top-bar">
+    <a href="index.html" class="back-link">← 알바트로스냅 소개로 돌아가기</a>
+  </div>
+
+  <p class="eyebrow">활동 기록</p>
+  <h1 class="page-title">우리가 함께 담은<br><span>순간들</span></h1>
+  <p class="page-desc">
+    연도와 상·하반기를 선택해 활동을 확인하고,<br>
+    각 활동을 눌러 그날의 사진을 감상해 보세요.
+  </p>
+
+  <div class="picker">
+    <div class="term-row"><span class="row-label">연도</span><div class="terms" id="years"></div></div>
+    <div class="term-row"><span class="row-label">반기</span><div class="terms" id="halves"></div></div>
+  </div>
+  <div class="term-summary" id="summary"></div>
+  <div id="listArea"></div>
+
+</div>
+
+<!-- 활동별 사진 갤러리 -->
+<div class="overlay" id="overlay">
+  <button type="button" class="ov-close" id="ovClose" aria-label="닫기">✕</button>
+  <div class="ov-inner" id="ovInner"></div>
+</div>
+
+<!-- 사진 확대 -->
+<div class="lightbox" id="lightbox">
+  <button type="button" class="lb-nav lb-close" id="lbClose" aria-label="닫기">✕</button>
+  <button type="button" class="lb-nav lb-prev" id="lbPrev" aria-label="이전">←</button>
+  <img id="lbImg" src="" alt="">
+  <button type="button" class="lb-nav lb-next" id="lbNext" aria-label="다음">→</button>
+  <div class="lb-count" id="lbCount"></div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   여기만 고치면 됩니다 — 활동 기록 데이터
+
+   ▸ 새 반기 추가       : TERMS 에 { year: 2027, half: 1, activities: [] } 추가
+                          (half 은 1 = 상반기, 2 = 하반기. 순서는 상관없다)
+   ▸ 새 활동 추가       : 해당 반기의 activities 배열에 항목 추가 (순서는 상관없다.
+                          화면에는 날짜순으로 정렬된다)
+   ▸ icon               : icons/ 폴더의 파일 이름 (camera, person, bolt, frame,
+                          coffee, pin, palette, ticket, monitor, polaroid ...)
+   ▸ 선택 항목          : subtitle(부제) / place(장소) / time(시각) / people(참여 인원)
+                          poster(포스터 이미지 — 목록 썸네일 겸 상세 상단에 표시)
+                          note(사진이 없을 때 대신 보여줄 문구)
+                          notice(공지에 썼던 카드뉴스 — 사진과 분리해서
+                                 '참고' 스트립으로 표시)
+                          endDate(1박 2일처럼 여러 날이면 마지막 날)
+                          upcoming: true (아직 다녀오지 않은 활동 → '예정' 표시.
+                                          다녀온 뒤 이 줄만 지우면 됩니다)
+   ▸ 사진 폴더 구조     : photos/<연도>/<반기>/<활동폴더>/01.jpg, 02.jpg ...
+                                                       /poster.jpg   (선택)
+                                                       /notice/01.jpg (선택)
+                          반기는 h1(상반기) / h2(하반기).
+                          예)  photos/2026/h1/0402-mapo/
+   ▸ photos             : 사진 경로 배열.
+                          - 번호순 자동 : seq('photos/<연도>/<반기>/<폴더>', 12)
+                            → .../01.jpg ~ .../12.jpg 를 자동 생성 (확장자 바꾸려면
+                              seq('...', 12, 'png'))
+                          - 직접 나열도 됨 : ['photos/.../a.jpg', '...']
+                          사진이 아직 없으면 seq(..., 0) 으로 두면
+                          sync_photos.py 가 나중에 숫자를 채워 줍니다.
+   ▸ 사진을 넣거나 뺀 뒤 : python sync_photos.py  를 실행하면 번호와 장수가
+                          자동으로 맞춰집니다.
+   ═══════════════════════════════════════════════════════════════ */
+
+/** dir 안의 01.ext ~ n.ext 경로를 만들어 줍니다. */
+function seq(dir, n, ext) {
+  ext = ext || 'jpg';
+  return Array.from({ length: n }, (_, i) =>
+    dir + '/' + String(i + 1).padStart(2, '0') + '.' + ext);
+}
+
+const TERMS = [
+  {
+    year: 2026, half: 1,
+    activities: [
+      {
+        date: '2026-06-06',
+        title: '창경궁 출사',
+        subtitle: '내 마니또의 인생샷 찍어주기',
+        icon: 'camera',
+        place: '창경궁',
+        time: '오후 3시',
+        desc: '마니또를 정해 서로의 인생샷을 찍어주는 미션 출사. 여덟 가지 미션을 들고 창경궁을 돌았습니다.<br>찍는 사람도, 찍히는 사람도 주인공이 된 하루였어요.',
+        poster: 'photos/2026/h1/0606-changgyeong/poster.jpg',
+        notice: seq('photos/2026/h1/0606-changgyeong/notice', 9),
+        photos: seq('photos/2026/h1/0606-changgyeong', 21)
+      },
+      {
+        date: '2026-05-14',
+        title: '컬러 셋로그',
+        icon: 'monitor',
+        desc: '하루를 색으로 기록하는 셋로그.<br>정해진 시간마다 그 색을 가진 물건을 찾아 올리며, 평범한 하루가 색깔별로 쌓였습니다.',
+        photos: seq('photos/2026/h1/0514-setlog', 8)
+      },
+      {
+        date: '2026-05-03',
+        title: '문래 출사',
+        subtitle: 'COLOR HUNTING',
+        icon: 'palette',
+        place: '문래동 일대',
+        time: '오후 3시',
+        desc: '빨강·노랑·초록·파랑 네 팀으로 나뉘어, 각자 맡은 색을 찾아 문래동을 돌았습니다.<br>팀별로 모은 사진을 아홉 칸에 모아 붙이니 동네가 색깔별로 다시 보였어요.',
+        poster: 'photos/2026/h1/0503-mullae/poster.jpg',
+        photos: seq('photos/2026/h1/0503-mullae', 40)
+      },
+      {
+        date: '2026-05-01',
+        title: '용산 번개',
+        icon: 'bolt',
+        place: '용산',
+        time: '오후 2시',
+        desc: '가볍게 모여 짧은 시간동안 함께 걸으며 용산 일대를 담았습니다.',
+        photos: seq('photos/2026/h1/0501-yongsan', 19)
+      },
+      {
+        date: '2026-04-24',
+        title: '아차산 번개',
+        icon: 'bolt',
+        place: '아차산',
+        time: '오후 6시 30분',
+        desc: '해질 무렵 아차산에 올라 서울을 내려다보며 찍었습니다.',
+        photos: seq('photos/2026/h1/0424-achasan', 41)
+      },
+      {
+        date: '2026-04-02',
+        title: '마포 번개',
+        subtitle: '저녁 먹고 야경 구경',
+        icon: 'bolt',
+        place: '안목가도 · 마포세빛문화숲',
+        time: '오후 6시 30분',
+        desc: '동아리의 첫 번개. 저녁을 먹고 한강변으로 나가 마포의 야경을 담았습니다.',
+        poster: 'photos/2026/h1/0402-mapo/poster.jpg',
+        photos: seq('photos/2026/h1/0402-mapo', 31)
+      }
+    ]
+  },
+  {
+    year: 2026, half: 2,
+    activities: [
+      {
+        date: '2026-08-08',
+        endDate: '2026-08-09',
+        title: '강릉 출사',
+        subtitle: 'GANGNEUNG TRAVEL NOTE',
+        icon: 'camera',
+        place: '강릉',
+        time: '1박 2일',
+        desc: '여름방학을 맞아 평소보다 조금 멀리 떠난 1박 2일 출사. 바다와 강릉의 다양한 풍경을 배경으로 사진을 찍고,<br>맛있는 것도 먹으며 함께 시간을 보냈습니다.',
+        poster: 'photos/2026/h2/0808-gangneung/poster.jpg',
+        notice: seq('photos/2026/h2/0808-gangneung/notice', 9),
+        // 다녀온 뒤 photos/2026/h2/0808-gangneung/ 에 사진을 넣고
+        // 사진정리.py 를 실행하면 아래 0 이 자동으로 채워집니다.
+        photos: seq('photos/2026/h2/0808-gangneung', 0)
+      }
+    ]
+  }
+];
+
+/* ═══════════════ 이 아래는 수정하지 않아도 됩니다 ═══════════════ */
+
+const yearsEl   = document.getElementById('years');
+const halvesEl  = document.getElementById('halves');
+const summaryEl = document.getElementById('summary');
+const listEl    = document.getElementById('listArea');
+const overlay   = document.getElementById('overlay');
+const ovInner   = document.getElementById('ovInner');
+const lightbox  = document.getElementById('lightbox');
+const lbImg     = document.getElementById('lbImg');
+const lbCount   = document.getElementById('lbCount');
+
+const HALVES = [{ n: 1, label: '상반기' }, { n: 2, label: '하반기' }];
+
+const allYears = () => [...new Set(TERMS.map(t => t.year))].sort((a, b) => a - b);
+const termOf   = (y, h) => TERMS.find(t => t.year === y && t.half === h);
+const actsOf   = (y, h) => (termOf(y, h) || {}).activities || [];
+
+// 가장 최근 연도에서, 활동이 있는 반기를 기본으로 연다
+let curYear = allYears()[allYears().length - 1];
+let curHalf = actsOf(curYear, 2).length ? 2 : 1;
+
+let lbList = [];
+let lbIdx = 0;
+
+const iconPath = name => 'icons/' + (name || 'camera') + '.png';
+
+const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
+
+function weekday(iso) {
+  const [y, m, d] = iso.split('-').map(Number);
+  return DAYS[new Date(y, m - 1, d).getDay()];
+}
+
+/** '2026-06-06' → '2026. 06. 06 (토)',  end 가 있으면 '… ~ 08. 09 (일)' */
+function fmtDate(iso, end) {
+  const head = iso.split('-').join('. ') + ' (' + weekday(iso) + ')';
+  if (!end) return head;
+  const [ey, em, ed] = end.split('-');
+  const tail = (ey === iso.split('-')[0] ? '' : ey + '. ') + em + '. ' + ed;
+  return head + ' ~ ' + tail + ' (' + weekday(end) + ')';
+}
+
+/** 파일을 지우면 그 자리도 같이 사라지도록, 없는 사진은 조용히 제거한다 */
+function dropIfMissing(img, box, onGone) {
+  img.addEventListener('error', () => {
+    box.remove();
+    if (onGone) onGone();
+  });
+}
+
+/* ── 연도 / 반기 선택 ── */
+
+/** 활동 목록을 'N회 · 예정 N' 같은 짧은 문구로 */
+function countLabel(acts) {
+  const done = acts.filter(a => !a.upcoming).length;
+  const soon = acts.length - done;
+  if (done) return done + '회' + (soon ? ' · 예정 ' + soon : '');
+  return soon ? '예정 ' + soon + '건' : '준비 중';
+}
+
+function makeBtn(parent, label, count, active, onClick) {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'term-btn' + (active ? ' active' : '');
+  b.innerHTML = label + (count ? '<span class="cnt">' + count + '</span>' : '');
+  b.addEventListener('click', onClick);
+  parent.appendChild(b);
+}
+
+function renderTerms() {
+  yearsEl.innerHTML = '';
+  allYears().forEach(y => {
+    const acts = HALVES.flatMap(h => actsOf(y, h.n));
+    makeBtn(yearsEl, y + '년', countLabel(acts), y === curYear, () => {
+      curYear = y;
+      // 고른 연도에 지금 반기가 비어 있으면 활동이 있는 쪽으로 옮긴다
+      if (!actsOf(y, curHalf).length) {
+        const other = HALVES.find(h => actsOf(y, h.n).length);
+        if (other) curHalf = other.n;
+      }
+      render();
+    });
+  });
+
+  halvesEl.innerHTML = '';
+  HALVES.forEach(h => {
+    makeBtn(halvesEl, h.label, countLabel(actsOf(curYear, h.n)),
+      h.n === curHalf, () => { curHalf = h.n; render(); });
+  });
+}
+
+/* ── 활동 목록 ── */
+function renderList() {
+  const termName = curYear + '년 ' + HALVES.find(h => h.n === curHalf).label;
+  // 날짜순(오래된 것 → 최근). 최신순으로 보고 싶으면 a.date/b.date 를 바꾸면 된다.
+  const acts = actsOf(curYear, curHalf).slice().sort((a, b) => a.date.localeCompare(b.date));
+  const shots = acts.reduce((n, a) => n + (a.photos ? a.photos.length : 0), 0);
+  const done = acts.filter(a => !a.upcoming).length;
+  const soon = acts.length - done;
+
+  summaryEl.innerHTML = acts.length
+    ? [done ? '활동 <b>' + done + '회</b>' : '',
+       shots ? '사진 <b>' + shots + '장</b>' : '',
+       soon ? '예정 <b>' + soon + '건</b>' : ''].filter(Boolean).join(' · ')
+    : '아직 기록된 활동이 없습니다.';
+
+  listEl.innerHTML = '';
+
+  if (!acts.length) {
+    listEl.innerHTML =
+      '<div class="empty"><img class="ico" src="' + iconPath('camera') + '" alt="">' +
+      '<p>' + termName + ' 활동은 아직 준비 중입니다.<br>곧 새로운 순간들로 채워집니다.</p></div>';
+    return;
+  }
+
+  const wrap = document.createElement('div');
+  wrap.className = 'act-list';
+
+  acts.forEach(a => {
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'act-item' + (a.upcoming ? ' is-soon' : '');
+
+    const thumb = document.createElement('div');
+    thumb.className = 'act-thumb';
+    const cover = a.poster || (a.photos && a.photos.length ? a.photos[0] : null);
+    if (cover) {
+      const im = document.createElement('img');
+      im.className = 'shot';
+      im.alt = '';
+      // 썸네일이 사라지면 아이콘으로 되돌린다
+      im.addEventListener('error', () => {
+        thumb.innerHTML = '<img class="ico" src="' + iconPath(a.icon) + '" alt="">';
+      });
+      im.src = cover;
+      thumb.appendChild(im);
+    } else {
+      thumb.innerHTML = '<img class="ico" src="' + iconPath(a.icon) + '" alt="">';
+    }
+
+    const body = document.createElement('div');
+    body.className = 'act-body';
+    const meta = [];
+    if (a.place)  meta.push('<span><img class="ico" src="' + iconPath('pin') + '" alt="">' + a.place + '</span>');
+    if (a.people) meta.push('<span><img class="ico" src="' + iconPath('person') + '" alt="">' + a.people + '명</span>');
+    if (a.time)   meta.push('<span><img class="ico" src="' + iconPath('clock') + '" alt="">' + a.time + '</span>');
+    meta.push('<span><img class="ico" src="' + iconPath('camera') + '" alt="">' +
+      (a.photos && a.photos.length ? a.photos.length + '장'
+        : (a.upcoming ? '다녀온 뒤 공개' : '사진 준비 중')) + '</span>');
+
+    body.innerHTML =
+      '<div class="act-date">' + fmtDate(a.date, a.endDate) +
+        (a.upcoming ? '<span class="soon">예정</span>' : '') + '</div>' +
+      '<div class="act-title">' + a.title +
+        (a.subtitle ? '<span class="act-sub">' + a.subtitle + '</span>' : '') + '</div>' +
+      '<div class="act-meta">' + meta.join('') + '</div>';
+
+    const go = document.createElement('div');
+    go.className = 'act-go';
+    go.textContent = '→';
+
+    item.append(thumb, body, go);
+    item.addEventListener('click', () => openGallery(a));
+    wrap.appendChild(item);
+  });
+
+  listEl.appendChild(wrap);
+}
+
+function render() { renderTerms(); renderList(); }
+
+/* ── 활동 상세 + 사진 갤러리 ── */
+function openGallery(a) {
+  const meta = [];
+  if (a.place)  meta.push('<span><img class="ico" src="' + iconPath('pin') + '" alt="">' + a.place + '</span>');
+  if (a.time)   meta.push('<span><img class="ico" src="' + iconPath('clock') + '" alt="">' + a.time + '</span>');
+  if (a.people) meta.push('<span><img class="ico" src="' + iconPath('person') + '" alt="">' + a.people + '명 참여</span>');
+
+  /* ── 머리말 ──
+     포스터가 있으면 왼쪽에 세워 두고 오른쪽에 글을 배치한다.
+     포스터는 그 활동의 얼굴이라 다른 자료와 섞지 않고 이 자리에만 둔다. */
+  const head =
+    '<div class="ov-date">' + fmtDate(a.date, a.endDate) +
+      (a.upcoming ? '<span class="soon">예정</span>' : '') + '</div>' +
+    '<h2 class="ov-title"><img class="ico ico-inline" src="' + iconPath(a.icon) + '" alt="">' + a.title + '</h2>' +
+    (a.subtitle ? '<p class="ov-sub">‹ ' + a.subtitle + ' ›</p>' : '') +
+    (meta.length ? '<div class="ov-meta">' + meta.join('') + '</div>' : '') +
+    (a.desc ? '<p class="ov-desc">' + a.desc + '</p>' : '');
+
+  ovInner.innerHTML = a.poster
+    ? '<div class="ov-hero has-poster">' +
+        '<div class="ov-poster"><img alt="' + a.title + ' 포스터" src="' + a.poster + '"></div>' +
+        '<div class="ov-head">' + head + '</div>' +
+      '</div>'
+    : '<div class="ov-hero">' + head + '</div>';
+
+  const posterImg = ovInner.querySelector('.ov-poster img');
+  if (posterImg) {
+    posterImg.addEventListener('click', () => openLightbox([a.poster], 0));
+    posterImg.addEventListener('error', () => {
+      ovInner.querySelector('.ov-hero').classList.remove('has-poster');
+      posterImg.parentElement.remove();
+    });
+  }
+
+  /* ── 참고 (카드뉴스) ── */
+  const notice = a.notice || [];
+  if (notice.length) {
+    const wrap = document.createElement('div');
+    wrap.className = 'press';
+    wrap.innerHTML =
+      '<div class="sec-head"><h3>참고</h3>' +
+      '<span class="hint">' + notice.length + '장 · 옆으로 넘겨 보세요</span></div>';
+
+    const strip = document.createElement('div');
+    strip.className = 'press-strip';
+    const live = notice.slice();
+    notice.forEach((src, i) => {
+      const card = document.createElement('div');
+      card.className = 'press-card';
+      const im = document.createElement('img');
+      im.alt = a.title + ' 공지 ' + (i + 1);
+      im.loading = 'lazy';
+      im.addEventListener('error', () => {
+        const k = live.indexOf(src);
+        if (k > -1) live.splice(k, 1);
+        card.remove();
+        if (!strip.children.length) wrap.remove();
+      });
+      im.src = src;
+      card.appendChild(im);
+      card.insertAdjacentHTML('beforeend', '<span class="no">' + (i + 1) + '</span>');
+      card.addEventListener('click', () => openLightbox(live, live.indexOf(src)));
+      strip.appendChild(card);
+    });
+    wrap.appendChild(strip);
+    ovInner.appendChild(wrap);
+  }
+
+  if (a.photos && a.photos.length) {
+    // 참고가 함께 있을 때만 '사진' 제목을 붙여 두 묶음을 구분한다
+    if (notice.length) {
+      ovInner.insertAdjacentHTML('beforeend',
+        '<div class="sec-head"><h3>사진</h3>' +
+        '<span class="hint">' + a.photos.length + '장</span></div>');
+    }
+    // 실제로 존재하는 사진만 남긴다 (파일을 지우면 목록에서도 사라진다)
+    const live = a.photos.slice();
+    const grid = document.createElement('div');
+    grid.className = 'photo-grid';
+    a.photos.forEach((src, i) => {
+      const box = document.createElement('div');
+      box.className = 'photo';
+      const im = document.createElement('img');
+      im.className = 'shot';
+      im.alt = a.title + ' 사진 ' + (i + 1);
+      im.loading = 'lazy';
+      dropIfMissing(im, box, () => {
+        const k = live.indexOf(src);
+        if (k > -1) live.splice(k, 1);
+        if (!grid.children.length) grid.remove();
+      });
+      im.src = src;
+      box.appendChild(im);
+      box.addEventListener('click', () => openLightbox(live, live.indexOf(src)));
+      grid.appendChild(box);
+    });
+    ovInner.appendChild(grid);
+  } else {
+    const p = document.createElement('p');
+    p.className = 'no-photo';
+    p.textContent = a.note || (a.upcoming
+      ? '아직 다녀오지 않은 활동입니다. 다녀온 뒤 사진으로 채워집니다.'
+      : '사진을 정리하는 중입니다. 조금만 기다려 주세요.');
+    ovInner.appendChild(p);
+  }
+
+  overlay.classList.add('open');
+  overlay.scrollTop = 0;
+  document.body.style.overflow = 'hidden';
+  history.pushState({ view: 'gallery' }, '');   // 뒤로가기로 닫을 수 있게
+}
+
+/* ── 사진 확대 ── */
+function openLightbox(list, i) {
+  lbList = list;
+  showLb(i);
+  lightbox.classList.add('open');
+  history.pushState({ view: 'photo' }, '');
+}
+function showLb(i) {
+  lbIdx = (i + lbList.length) % lbList.length;
+  lbImg.src = lbList[lbIdx];
+  const many = lbList.length > 1;
+  lbCount.textContent = many ? (lbIdx + 1) + ' / ' + lbList.length : '';
+  document.getElementById('lbPrev').style.display = many ? '' : 'none';
+  document.getElementById('lbNext').style.display = many ? '' : 'none';
+}
+/* ── 닫기 ──
+   화면을 실제로 감추는 hide*() 와, 닫기 버튼·Esc·배경 클릭이 부르는 close*() 를
+   나눠 둔다. close*() 는 history.back() 을 부르고, 실제로 감추는 일은 popstate 가
+   맡는다. 이렇게 해야 X 로 닫든 브라우저 뒤로가기로 닫든 히스토리가 어긋나지 않는다. */
+function hideGallery() {
+  overlay.classList.remove('open');
+  if (!lightbox.classList.contains('open')) document.body.style.overflow = '';
+}
+function hideLightbox() {
+  lightbox.classList.remove('open');
+  if (!overlay.classList.contains('open')) document.body.style.overflow = '';
+}
+function closeGallery()  { if (overlay.classList.contains('open'))  history.back(); }
+function closeLightbox() { if (lightbox.classList.contains('open')) history.back(); }
+
+// 브라우저 뒤로가기 = 위에 떠 있는 창 하나만 닫기 (페이지를 벗어나지 않는다)
+window.addEventListener('popstate', () => {
+  if (lightbox.classList.contains('open'))     hideLightbox();
+  else if (overlay.classList.contains('open')) hideGallery();
+});
+
+document.getElementById('ovClose').addEventListener('click', closeGallery);
+document.getElementById('lbClose').addEventListener('click', closeLightbox);
+document.getElementById('lbPrev').addEventListener('click', () => showLb(lbIdx - 1));
+document.getElementById('lbNext').addEventListener('click', () => showLb(lbIdx + 1));
+
+overlay.addEventListener('click', e => { if (e.target === overlay) closeGallery(); });
+lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
+
+document.addEventListener('keydown', e => {
+  if (lightbox.classList.contains('open')) {
+    if (e.key === 'Escape')     closeLightbox();
+    if (e.key === 'ArrowLeft')  showLb(lbIdx - 1);
+    if (e.key === 'ArrowRight') showLb(lbIdx + 1);
+    return;
+  }
+  if (overlay.classList.contains('open') && e.key === 'Escape') closeGallery();
+});
+
+render();
+</script>
+</body>
+</html>

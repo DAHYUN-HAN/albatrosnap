@@ -143,17 +143,28 @@
     0%,100% { transform: translateY(0); }
     50% { transform: translateY(-10px); }
   }
+  /* 커버 버튼 2개 — 같은 알약 디자인으로 짝을 이루게 */
+  #s1 .cover-btns {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 32px;
+  }
   #s1 .badge {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     background: var(--surface2);
     border: 1px solid var(--border);
     border-radius: 100px;
-    padding: 6px 18px;
+    padding: 9px 20px;
     font-size: 12px;
     letter-spacing: .15em;
     color: var(--muted);
-    margin-top: 32px;
     font-family: inherit;
+    text-decoration: none;
     cursor: pointer;
     transition: color .25s, border-color .25s, background .25s;
   }
@@ -161,6 +172,8 @@
     color: var(--accent);
     border-color: var(--accent);
   }
+  #s1 .badge .arrow { transition: transform .25s; }
+  #s1 .badge:hover .arrow { transform: translateX(3px); }
   #s1 .name-kr {
     font-size: clamp(56px, 8vw, 100px);
     font-weight: 900;
@@ -365,7 +378,8 @@
     .divider { margin: 20px 0; }
 
     #s1 .camera-icon { font-size: 48px; margin-bottom: 20px; }
-    #s1 .badge { margin-top: 24px; font-size: 11px; }
+    #s1 .cover-btns { margin-top: 24px; gap: 8px; }
+    #s1 .badge { font-size: 11px; padding: 8px 16px; }
 
     #s2 .divider { width: 100%; }
     #s2 .desc { font-size: 14px; margin-top: 20px; }
@@ -411,7 +425,10 @@
     <p class="eyebrow">서강대학교 AIㆍSW 대학원 신규 동아리</p>
     <div class="name-kr">알바트로스냅</div>
     <p class="tagline">오늘 하루를 기록하고, 함께 나누는 사진 동아리</p>
-    <button type="button" class="badge" id="joinBadge">함께할 구성원 상시 모집</button>
+    <div class="cover-btns">
+      <button type="button" class="badge" id="joinBadge">함께할 구성원 상시 모집<span class="arrow">→</span></button>
+      <a href="activities.html" class="badge">우리 활동 보러가기<span class="arrow">→</span></a>
+    </div>
   </div>
 
   <!-- 슬라이드 2: 소개 -->
