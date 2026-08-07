@@ -74,31 +74,54 @@
   }
   .picker .sep { width: 1px; height: 22px; background: var(--border); margin: 0 6px; }
 
-  /* 연도 드롭다운 */
+  /* 연도 드롭다운 — 네이티브 select 는 펼친 목록을 OS 가 그려서 어두운 테마와
+     따로 논다. 그래서 버튼 + 목록을 직접 만들었다. */
   .year-pick { position: relative; }
-  .year-pick::after {                       /* 화살표 */
-    content: '▾';
-    position: absolute; right: 14px; top: 50%;
-    transform: translateY(-50%);
-    font-size: 11px; color: var(--muted);
-    pointer-events: none;
-    transition: color .25s;
-  }
-  .year-pick:hover::after { color: var(--accent); }
-  .year-pick select {
-    appearance: none; -webkit-appearance: none;
+  .year-btn {
+    display: inline-flex; align-items: center; gap: 12px;
     font-family: inherit;
     background: var(--surface2); border: 1px solid var(--border); color: var(--text);
     border-radius: 8px;
-    padding: 9px 38px 9px 16px;
-    font-size: 14px; font-weight: 700; letter-spacing: .04em;
-    cursor: pointer;
-    transition: border-color .25s;
+    padding: 9px 14px 9px 16px;
+    font-size: 13px; font-weight: 700; letter-spacing: .04em;
+    cursor: pointer; white-space: nowrap;
+    transition: border-color .25s, background .25s;
   }
-  .year-pick select:hover { border-color: var(--accent2); }
-  .year-pick select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  /* 펼쳤을 때의 목록은 브라우저가 그리므로 배경색만 맞춰 준다 */
-  .year-pick option { background: var(--surface2); color: var(--text); }
+  .year-btn:hover { border-color: var(--accent2); background: #2c2c2c; }
+  .year-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .year-btn .caret {
+    font-size: 10px; color: var(--muted);
+    transition: transform .25s, color .25s;
+  }
+  .year-btn[aria-expanded="true"] { border-color: var(--accent2); }
+  .year-btn[aria-expanded="true"] .caret { transform: rotate(180deg); color: var(--accent); }
+
+  .year-menu {
+    position: absolute; top: calc(100% + 6px); left: 0; z-index: 50;
+    min-width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 10px;
+    padding: 5px;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, .55);
+    opacity: 0; visibility: hidden;
+    transform: translateY(-4px);
+    transition: opacity .18s, transform .18s, visibility .18s;
+  }
+  .year-menu.open { opacity: 1; visibility: visible; transform: translateY(0); }
+  .year-menu button {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    width: 100%;
+    font-family: inherit;
+    background: none; border: 0; border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 13px; font-weight: 700; letter-spacing: .04em;
+    color: var(--muted); white-space: nowrap; text-align: left;
+    cursor: pointer;
+    transition: background .18s, color .18s;
+  }
+  .year-menu button:hover { background: #323232; color: var(--text); }
+  .year-menu button[aria-selected="true"] { color: var(--accent); }
+  .year-menu button[aria-selected="true"]::after { content: '✓'; font-size: 11px; }
 
   /* 반기 세그먼트 — 두 칸이 한 덩어리로 붙어 있다 */
   .seg {
@@ -142,22 +165,32 @@
   }
   .act-item:hover { border-color: var(--accent2); transform: translateX(4px); background: #1d1d1d; }
 
-  /* 썸네일은 카드 왼쪽 끝까지, 위아래로도 꽉 채운다 */
+  /* 썸네일은 카드 왼쪽 끝까지, 위아래로도 꽉 채운다.
+     336 x 224 = 3:2 — 3:2 로 만든 썸네일은 잘리지 않고 그대로 들어간다. */
   .act-thumb {
-    width: 320px; flex-shrink: 0;
+    width: 336px; flex-shrink: 0;
     height: 100%;
     background: var(--surface2);
     display: flex; align-items: center; justify-content: center;
     overflow: hidden;
   }
-  .act-thumb img.shot { width: 100%; height: 100%; object-fit: cover; display: block; }
-  /* 포스터는 세로로 길고 제목이 위쪽에 있어, 가운데를 자르면 제목이 날아간다 */
-  .act-thumb img.is-poster { object-position: top; }
+  .act-thumb img.shot {
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: center;
+    display: block;
+  }
   .act-thumb .ico { font-size: 48px; opacity: .5; }
 
+  /* 본문은 위아래 두 칸으로 나누고, 각 칸 안에서 세로 가운데를 맞춘다.
+     그러면 가운데 구분선이 카드 정중앙에 온다. */
   .act-body {
     flex: 1; min-width: 0;
     padding: 0 28px;
+    display: flex; flex-direction: column;
+  }
+  /* 위 칸(날짜·제목·부제)이 아래 칸(장소·시간·사진)보다 넉넉하게 */
+  .act-main {
+    flex: 1.9; min-height: 0;
     display: flex; flex-direction: column; justify-content: center;
   }
   .act-date { font-size: 11px; letter-spacing: .12em; color: var(--accent); margin-bottom: 9px; }
@@ -184,18 +217,18 @@
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
 
-  /* 메타는 가는 선 아래에, 항목끼리 세로선으로 나눈다 */
+  /* 메타는 가는 선 아래 칸에서 세로 가운데. 위 칸보다 좁게 */
   .act-meta {
-    margin-top: 20px; padding-top: 17px;
+    flex: 1; min-height: 0;
     border-top: 1px solid var(--border);
-    font-size: 12px; color: #7a7a7a;
+    font-size: 11.5px; color: #7a7a7a;
     display: flex; align-items: center;
     white-space: nowrap; overflow: hidden;
   }
-  .act-meta span { display: inline-flex; align-items: center; gap: 6px; padding: 0 14px; }
+  .act-meta span { display: inline-flex; align-items: center; gap: 5px; padding: 0 12px; }
   .act-meta span:first-child { padding-left: 0; }
   .act-meta span + span { border-left: 1px solid var(--border); }
-  .act-meta .ico { font-size: 14px; }
+  .act-meta .ico { font-size: 13px; }
 
   .act-go {
     display: flex; align-items: center;
@@ -368,17 +401,17 @@
     .term-btn .cnt { font-size: 10px; }
 
     /* 좁은 화면에서는 사진을 위로 올리고 글을 아래에 쌓는다 (여기도 높이 고정) */
-    /* 장소가 길면 메타가 두 줄이 되므로 그만큼 높이를 넉넉히 잡는다 */
-    .act-item { flex-direction: column; height: 340px; border-radius: 12px; }
+    /* 카드 폭이 모두 같으므로 3:2 로 두면 사진 높이도 저절로 같아진다 */
+    .act-item { flex-direction: column; height: auto; border-radius: 12px; }
     .act-item:hover { transform: none; }
-    .act-thumb { width: 100%; height: 170px; }
+    .act-thumb { width: 100%; height: auto; aspect-ratio: 3 / 2; }
     .act-thumb .ico { font-size: 40px; }
     /* 사진이 위로 올라간 세로 카드라, 글도 가운데로 모은다 */
-    .act-body { flex: 1; padding: 0 18px; text-align: center; }
+    .act-body { flex: none; height: 152px; padding: 0 18px; text-align: center; }
     .act-title { font-size: 19px; }
     .act-sub { font-size: 12px; margin-top: 5px; }
     .act-meta {
-      font-size: 11px; margin-top: 14px; padding-top: 13px;
+      font-size: 11px;
       justify-content: center;
       flex-wrap: wrap; white-space: normal;
       gap: 5px 14px;
@@ -419,15 +452,19 @@
   <p class="eyebrow">활동 기록</p>
   <h1 class="page-title">우리가 함께 담은<br><span>순간들</span></h1>
   <p class="page-desc">
-    연도와 상·하반기를 선택해 활동을 확인하고,<br>
-    각 활동을 눌러 그날의 사진을 감상해 보세요.
+    연도와 상·하반기를 선택해 활동 목록을 확인하고,<br>
+    보고 싶은 활동을 눌러 그날의 사진을 구경해 보세요.
   </p>
 
   <div class="picker">
     <div class="pick-group">
       <span class="pick-label">연도</span>
       <div class="year-pick">
-        <select id="years" aria-label="연도 선택"></select>
+        <button type="button" class="year-btn" id="yearBtn"
+                aria-haspopup="listbox" aria-expanded="false">
+          <span id="yearLabel">2026년</span><span class="caret">▾</span>
+        </button>
+        <div class="year-menu" id="yearMenu" role="listbox" aria-label="연도"></div>
       </div>
     </div>
     <span class="sep"></span>
@@ -467,7 +504,9 @@
    ▸ icon               : icons/ 폴더의 파일 이름 (camera, person, bolt, frame,
                           coffee, pin, palette, ticket, monitor, polaroid ...)
    ▸ 선택 항목          : subtitle(부제) / place(장소) / time(시각) / people(참여 인원)
-                          poster(포스터 이미지 — 목록 썸네일 겸 상세 상단에 표시)
+                          thumb(목록에 쓸 전용 썸네일. 3:2 비율로 만들면 잘리지
+                                않는다. 권장 1008x672. 없으면 poster → 첫 사진 순)
+                          poster(포스터 이미지 — 상세 화면 왼쪽에 크게 표시)
                           note(사진이 없을 때 대신 보여줄 문구)
                           notice(공지에 썼던 카드뉴스 — 사진과 분리해서
                                  '참고' 스트립으로 표시)
@@ -511,6 +550,7 @@ const TERMS = [
         desc: '마니또를 정해 서로의 인생샷을 찍어주는 미션 출사.<br>여덟 가지 미션을 들고 창경궁을 돌았습니다.<br>찍는 사람도, 찍히는 사람도 주인공이 된 하루였어요.',
         poster: 'photos/2026/h1/0606-changgyeong/poster.jpg',
         notice: seq('photos/2026/h1/0606-changgyeong/notice', 9),
+        thumb: 'photos/2026/h1/0606-changgyeong/thumb.jpg',
         photos: seq('photos/2026/h1/0606-changgyeong', 21)
       },
       {
@@ -518,7 +558,7 @@ const TERMS = [
         title: '컬러 셋로그',
         icon: 'monitor',
         desc: '하루를 색으로 기록하는 셋로그.<br>정해진 시간마다 그 색을 가진 물건을 찾아 올리며, 평범한 하루가 색깔별로 쌓였습니다.',
-        photos: seq('photos/2026/h1/0514-setlog', 8)
+        photos: seq('photos/2026/h1/0514-setlog', 9)
       },
       {
         date: '2026-05-03',
@@ -529,6 +569,7 @@ const TERMS = [
         time: '오후 3시',
         desc: '빨강·노랑·초록·파랑 네 팀으로 나뉘어, 각자 맡은 색을 찾아 문래동을 돌았습니다.<br>팀별로 모은 사진을 아홉 칸에 모아 붙이니 동네가 색깔별로 다시 보였어요.',
         poster: 'photos/2026/h1/0503-mullae/poster.jpg',
+        thumb: 'photos/2026/h1/0503-mullae/thumb.jpg',
         photos: seq('photos/2026/h1/0503-mullae', 40)
       },
       {
@@ -538,6 +579,7 @@ const TERMS = [
         place: '용산',
         time: '오후 2시',
         desc: '가볍게 모여 짧은 시간동안 함께 걸으며 용산 일대를 담았습니다.',
+        thumb: 'photos/2026/h1/0501-yongsan/thumb.jpg',
         photos: seq('photos/2026/h1/0501-yongsan', 19)
       },
       {
@@ -547,6 +589,7 @@ const TERMS = [
         place: '아차산',
         time: '오후 6시 30분',
         desc: '해질 무렵 아차산에 올라 서울을 내려다보며 찍었습니다.',
+        thumb: 'photos/2026/h1/0424-achasan/thumb.jpg',
         photos: seq('photos/2026/h1/0424-achasan', 41)
       },
       {
@@ -558,6 +601,7 @@ const TERMS = [
         time: '오후 6시 30분',
         desc: '동아리의 첫 번개. 저녁을 먹고 한강변으로 나가 마포의 야경을 담았습니다.',
         poster: 'photos/2026/h1/0402-mapo/poster.jpg',
+        thumb: 'photos/2026/h1/0402-mapo/thumb.jpg',
         photos: seq('photos/2026/h1/0402-mapo', 31)
       }
     ]
@@ -574,6 +618,7 @@ const TERMS = [
         place: '강릉',
         time: '1박 2일',
         desc: '여름방학을 맞아 평소보다 조금 멀리 떠난 1박 2일 출사. 바다와 강릉의 다양한 풍경을 배경으로 사진을 찍고,<br>맛있는 것도 먹으며 함께 시간을 보냈습니다.',
+        thumb: 'photos/2026/h2/0808-gangneung/thumb.jpg',
         poster: 'photos/2026/h2/0808-gangneung/poster.jpg',
         notice: seq('photos/2026/h2/0808-gangneung/notice', 9),
         // 다녀온 뒤 photos/2026/h2/0808-gangneung/ 에 사진을 넣고
@@ -586,7 +631,9 @@ const TERMS = [
 
 /* ═══════════════ 이 아래는 수정하지 않아도 됩니다 ═══════════════ */
 
-const yearsEl   = document.getElementById('years');
+const yearBtn   = document.getElementById('yearBtn');
+const yearLabel = document.getElementById('yearLabel');
+const yearMenu  = document.getElementById('yearMenu');
 const halvesEl  = document.getElementById('halves');
 const summaryEl = document.getElementById('summary');
 const listEl    = document.getElementById('listArea');
@@ -656,13 +703,16 @@ function makeBtn(parent, label, count, active, onClick) {
 
 function renderTerms() {
   // 연도는 드롭다운 — 해가 쌓여도 가로 폭이 늘지 않는다
-  yearsEl.innerHTML = '';
+  yearLabel.textContent = curYear + '년';
+  yearMenu.innerHTML = '';
   allYears().forEach(y => {
-    const o = document.createElement('option');
-    o.value = y;
-    o.textContent = y + '년';
-    o.selected = y === curYear;
-    yearsEl.appendChild(o);
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.setAttribute('role', 'option');
+    b.setAttribute('aria-selected', y === curYear);
+    b.innerHTML = '<span>' + y + '년</span>';
+    b.addEventListener('click', () => { pickYear(y); closeYearMenu(); });
+    yearMenu.appendChild(b);
   });
 
   halvesEl.innerHTML = '';
@@ -672,14 +722,37 @@ function renderTerms() {
   });
 }
 
-// 연도를 바꿨을 때, 그 해에 지금 반기가 비어 있으면 활동이 있는 쪽으로 옮긴다
-yearsEl.addEventListener('change', e => {
-  curYear = Number(e.target.value);
+/* ── 연도 드롭다운 열고 닫기 ── */
+function openYearMenu() {
+  yearMenu.classList.add('open');
+  yearBtn.setAttribute('aria-expanded', 'true');
+}
+function closeYearMenu() {
+  yearMenu.classList.remove('open');
+  yearBtn.setAttribute('aria-expanded', 'false');
+}
+function pickYear(y) {
+  curYear = y;
+  // 그 해에 지금 반기가 비어 있으면 활동이 있는 쪽으로 옮긴다
   if (!actsOf(curYear, curHalf).length) {
     const other = HALVES.find(h => actsOf(curYear, h.n).length);
     if (other) curHalf = other.n;
   }
   render();
+}
+
+yearBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  yearMenu.classList.contains('open') ? closeYearMenu() : openYearMenu();
+});
+document.addEventListener('click', e => {
+  if (!yearMenu.contains(e.target)) closeYearMenu();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && yearMenu.classList.contains('open')) {
+    closeYearMenu();
+    yearBtn.focus();
+  }
 });
 
 /* ── 활동 목록 ── */
@@ -716,10 +789,11 @@ function renderList() {
 
     const thumb = document.createElement('div');
     thumb.className = 'act-thumb';
-    const cover = a.poster || (a.photos && a.photos.length ? a.photos[0] : null);
+    // 목록 표지 우선순위: 전용 썸네일 → 포스터 → 첫 사진
+    const cover = a.thumb || a.poster || (a.photos && a.photos.length ? a.photos[0] : null);
     if (cover) {
       const im = document.createElement('img');
-      im.className = 'shot' + (a.poster ? ' is-poster' : '');
+      im.className = 'shot';
       im.alt = '';
       // 썸네일이 사라지면 아이콘으로 되돌린다
       im.addEventListener('error', () => {
@@ -742,10 +816,12 @@ function renderList() {
         : (a.upcoming ? '준비 중' : '정리 중')) + '</span>');
 
     body.innerHTML =
-      '<div class="act-date">' + fmtDate(a.date, a.endDate) +
-        (a.upcoming ? '<span class="soon">예정</span>' : '') + '</div>' +
-      '<div class="act-title">' + a.title + '</div>' +
-      (a.subtitle ? '<div class="act-sub">' + a.subtitle + '</div>' : '') +
+      '<div class="act-main">' +
+        '<div class="act-date">' + fmtDate(a.date, a.endDate) +
+          (a.upcoming ? '<span class="soon">예정</span>' : '') + '</div>' +
+        '<div class="act-title">' + a.title + '</div>' +
+        (a.subtitle ? '<div class="act-sub">' + a.subtitle + '</div>' : '') +
+      '</div>' +
       '<div class="act-meta">' + meta.join('') + '</div>';
 
     const go = document.createElement('div');

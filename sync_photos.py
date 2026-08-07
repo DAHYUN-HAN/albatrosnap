@@ -37,6 +37,8 @@ BASE = Path(__file__).resolve().parent
 PHOTOS = BASE / "photos"
 HTML = BASE / "activities.html"
 EXTS = {".jpg", ".jpeg", ".png", ".JPG", ".JPEG", ".PNG"}
+# 사진이 아니라 따로 쓰이는 파일 — 번호를 매기지 않는다
+KEEP = {"poster", "thumb"}
 
 YEAR_RE = re.compile(r"^\d{4}$")
 HALF_RE = re.compile(r"^h[12]$")
@@ -45,7 +47,7 @@ HALF_RE = re.compile(r"^h[12]$")
 def tidy(folder: Path) -> int:
     """폴더 안 사진을 01.jpg 부터 다시 번호 매기고, 장수를 돌려준다."""
     shots = sorted(p for p in folder.iterdir()
-                   if p.is_file() and p.suffix in EXTS and p.stem != "poster")
+                   if p.is_file() and p.suffix in EXTS and p.stem not in KEEP)
     tmp = []
     for i, p in enumerate(shots, 1):
         t = folder / f"__{i:03d}.tmp"

@@ -156,37 +156,59 @@
     0%,100% { transform: translateY(0); }
     50% { transform: translateY(-10px); }
   }
-  /* 커버 버튼 2개 — 같은 알약 디자인으로 짝을 이루게 */
+  /* 커버 아래 : 눈에 띄는 버튼 하나 + 그 아래 작은 안내 한 줄 */
   #s1 .cover-btns {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-top: 32px;
+    gap: 14px;
+    margin-top: 34px;
   }
-  #s1 .badge {
+  /* ── 금색 주 버튼 ──
+     커버의 '우리 활동 보러가기' 와 마지막 장의 '오픈채팅 바로가기' 가 같은 규칙을
+     공유한다. 사이트에서 가장 중요한 두 버튼이라 생김새와 크기를 맞춘다. */
+  #s1 .badge,
+  .kakao-btn {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
+    gap: 9px;
+    background: linear-gradient(135deg, #f5e2a8 0%, var(--accent) 48%, var(--accent2) 100%);
+    border: 0;
     border-radius: 100px;
-    padding: 9px 20px;
-    font-size: 12px;
-    letter-spacing: .15em;
-    color: var(--muted);
+    padding: 12px 28px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: .05em;
+    color: #1a1408;
     font-family: inherit;
     text-decoration: none;
     cursor: pointer;
-    transition: color .25s, border-color .25s, background .25s;
+    box-shadow: 0 6px 20px rgba(232, 200, 122, .22);
+    transition: transform .25s, box-shadow .25s, filter .25s;
   }
-  #s1 .badge:hover {
-    color: var(--accent);
-    border-color: var(--accent);
+  #s1 .badge:hover,
+  .kakao-btn:hover {
+    filter: brightness(1.06);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(232, 200, 122, .45);
   }
-  #s1 .badge .arrow { transition: transform .25s; }
-  #s1 .badge:hover .arrow { transform: translateX(3px); }
+  #s1 .badge:active,
+  .kakao-btn:active { transform: translateY(0); }
+  #s1 .badge:visited,
+  .kakao-btn:visited { color: #1a1408; }
+
+  /* 보조 안내 — 버튼 아래 한 줄, 눌리기는 하되 조용하게 */
+  #s1 .cover-note {
+    background: none; border: 0; padding: 2px 0;
+    font-family: inherit;
+    font-size: 12px;
+    letter-spacing: .12em;
+    color: #6d6d6d;
+    cursor: pointer;
+    border-bottom: 1px solid transparent;
+    transition: color .25s, border-color .25s;
+  }
+  #s1 .cover-note:hover { color: var(--accent); border-bottom-color: var(--accent2); }
   #s1 .name-kr {
     font-size: clamp(56px, 8vw, 100px);
     font-weight: 900;
@@ -248,6 +270,7 @@
     margin-top: 8px;
   }
   .card {
+    --mark-w: 44px;              /* 아이콘과 밑줄이 공유하는 폭 */
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 16px;
@@ -255,11 +278,16 @@
     transition: border-color .3s, transform .3s;
   }
   .card:hover { border-color: var(--accent2); transform: translateY(-4px); }
-  .card .icon { font-size: 32px; margin-bottom: 14px; }
+  /* 아이콘과 아래 노란 줄의 가운데를 서로 맞춘다 */
+  .card .icon {
+    width: var(--mark-w);
+    display: flex; justify-content: center;
+    font-size: 32px; margin-bottom: 14px;
+  }
   .card h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
   .card p { font-size: 13px; color: #888; line-height: 1.8; }
   .card .accent-line {
-    width: 44px; height: 2px;
+    width: var(--mark-w); height: 2px;
     background: var(--accent);
     margin-bottom: 14px;
   }
@@ -337,22 +365,9 @@
   #s7 .apply-box .a-value { font-size: 18px; font-weight: 700; }
 
   /* 카카오 버튼 */
-  .kakao-btn {
-    display: inline-block;
-    margin-top: 16px;
-    padding: 12px 28px;
-    background: var(--accent);
-    color: #000;
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: .05em;
-    border-radius: 100px;
-    text-decoration: none;
-    transition: opacity .2s, transform .2s;
-  }
-  .kakao-btn:hover { opacity: .85; transform: translateY(-2px); }
-  .kakao-btn:active { opacity: 1; transform: translateY(0); }
-  .kakao-btn:visited { color: #000; }
+  /* 생김새는 위쪽 '금색 주 버튼' 규칙과 공유하고, 여백만 따로 준다 */
+  .kakao-btn { margin-top: 16px; }
+  .kakao-btn .ico { width: 1.35em; height: 1.35em; }
 
   /* 키보드 힌트 */
   .hint {
@@ -391,8 +406,10 @@
     .divider { margin: 20px 0; }
 
     #s1 .camera-icon { font-size: 48px; margin-bottom: 20px; }
-    #s1 .cover-btns { margin-top: 24px; gap: 8px; }
-    #s1 .badge { font-size: 11px; padding: 8px 16px; }
+    #s1 .cover-btns { margin-top: 26px; gap: 12px; }
+    #s1 .badge,
+    .kakao-btn { font-size: 13px; padding: 11px 24px; }
+    #s1 .cover-note { font-size: 11px; }
 
     #s2 .divider { width: 100%; }
     #s2 .desc { font-size: 14px; margin-top: 20px; }
@@ -400,11 +417,11 @@
     #s2 .tag { font-size: 12px; padding: 5px 14px; }
 
     .card-grid { gap: 10px; margin-top: 4px; }
-    .card { border-radius: 14px; padding: 18px 16px; }
+    .card { --mark-w: 36px; border-radius: 14px; padding: 18px 16px; }
     .card .icon { font-size: 24px; margin-bottom: 10px; }
     .card h3 { font-size: 13px; }
     .card p { font-size: 11px; }
-    .card .accent-line { width: 36px; margin-bottom: 10px; }
+    .card .accent-line { margin-bottom: 10px; }
 
     .timeline { margin-top: 4px; }
     .tl-item { gap: 16px; padding-bottom: 24px; }
@@ -439,8 +456,8 @@
     <div class="name-kr">알바트로스냅</div>
     <p class="tagline">오늘 하루를 기록하고, 함께 나누는 사진 동아리</p>
     <div class="cover-btns">
-      <button type="button" class="badge" id="joinBadge">함께할 구성원 상시 모집<span class="arrow">→</span></button>
-      <a href="activities.html" class="badge">우리 활동 보러가기<span class="arrow">→</span></a>
+      <a href="activities.html" class="badge">우리 활동 보러가기</a>
+      <button type="button" class="cover-note" id="joinBadge">함께할 구성원 상시 모집</button>
     </div>
   </div>
 
@@ -613,7 +630,7 @@
       <div class="a-label">참여 방법</div>
       <div class="a-value">카카오톡 오픈채팅</div>
       <a href="https://open.kakao.com/o/gNlWzTli" target="_blank" class="kakao-btn">
-        <img class="ico ico-inline" src="icons/chat2.png" alt="">오픈채팅 바로가기
+        <img class="ico" src="icons/chat2.png" alt="">오픈채팅 바로가기
       </a>
       <div style="margin-top:16px; font-size:12px; color:var(--muted); letter-spacing:.1em;"><img class="ico ico-inline" src="icons/lock.png" alt="">입장 비밀번호 : <span style="color:var(--accent); font-weight:700;">snap</span></div>
     </div>
