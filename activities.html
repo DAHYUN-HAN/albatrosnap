@@ -66,6 +66,8 @@
     margin-top: 44px;
     display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
   }
+  /* 라벨과 컨트롤을 한 덩어리로 묶어, 줄이 바뀌어도 둘이 떨어지지 않게 한다 */
+  .pick-group { display: flex; align-items: center; gap: 10px; }
   .pick-label {
     font-size: 12px; letter-spacing: .16em; color: #6a6a6a;
     flex-shrink: 0;
@@ -352,8 +354,9 @@
   @media (max-width: 600px) {
     .wrap { padding: 32px 20px 72px; }
     .top-bar { margin-bottom: 32px; }
-    .picker { margin-top: 32px; gap: 8px; }
+    .picker { margin-top: 32px; gap: 10px 14px; }
     .picker .sep { display: none; }
+    .pick-group { gap: 8px; }
     .pick-label { font-size: 11px; letter-spacing: .12em; }
     .year-pick select { padding: 8px 32px 8px 13px; font-size: 13px; }
     .seg .term-btn { padding: 8px 13px; font-size: 12px; }
@@ -407,13 +410,17 @@
   </p>
 
   <div class="picker">
-    <span class="pick-label">연도</span>
-    <div class="year-pick">
-      <select id="years" aria-label="연도 선택"></select>
+    <div class="pick-group">
+      <span class="pick-label">연도</span>
+      <div class="year-pick">
+        <select id="years" aria-label="연도 선택"></select>
+      </div>
     </div>
     <span class="sep"></span>
-    <span class="pick-label">반기</span>
-    <div class="seg" id="halves"></div>
+    <div class="pick-group">
+      <span class="pick-label">반기</span>
+      <div class="seg" id="halves"></div>
+    </div>
   </div>
   <div class="term-summary" id="summary"></div>
   <div id="listArea"></div>
