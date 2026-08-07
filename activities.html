@@ -332,7 +332,12 @@
     transition: opacity .25s;
   }
   .lightbox.open { opacity: 1; pointer-events: all; }
-  .lightbox img { max-width: 90vw; max-height: 84vh; object-fit: contain; border-radius: 6px; }
+  .lightbox img {
+    max-width: 90vw; max-height: 84vh; object-fit: contain; border-radius: 6px;
+    /* 스와이프할 때 이미지가 끌리거나 선택되지 않도록 */
+    user-select: none; -webkit-user-select: none; -webkit-user-drag: none;
+    touch-action: pan-y;
+  }
   .lb-nav {
     position: absolute; top: 50%; transform: translateY(-50%);
     width: 52px; height: 52px; border-radius: 50%;
@@ -911,7 +916,32 @@ document.getElementById('lbPrev').addEventListener('click', () => showLb(lbIdx -
 document.getElementById('lbNext').addEventListener('click', () => showLb(lbIdx + 1));
 
 overlay.addEventListener('click', e => { if (e.target === overlay) closeGallery(); });
-lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
+
+/* ── 모바일 스와이프로 사진 넘기기 ── */
+let swiped = false, tx = 0, ty = 0;
+
+lightbox.addEventListener('click', e => {
+  // 스와이프 뒤에도 click 이 따라오므로, 넘긴 직후에는 닫지 않는다
+  if (swiped) { swiped = false; return; }
+  if (e.target === lightbox) closeLightbox();
+});
+
+lightbox.addEventListener('touchstart', e => {
+  const t = e.changedTouches[0];
+  tx = t.clientX; ty = t.clientY;
+  swiped = false;
+}, { passive: true });
+
+lightbox.addEventListener('touchend', e => {
+  if (lbList.length < 2) return;
+  const t = e.changedTouches[0];
+  const dx = t.clientX - tx;
+  const dy = t.clientY - ty;
+  // 가로로 충분히, 그리고 세로보다 확실히 많이 움직였을 때만 넘긴다
+  if (Math.abs(dx) < 45 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+  swiped = true;
+  showLb(lbIdx + (dx < 0 ? 1 : -1));
+}, { passive: true });
 
 document.addEventListener('keydown', e => {
   if (lightbox.classList.contains('open')) {
