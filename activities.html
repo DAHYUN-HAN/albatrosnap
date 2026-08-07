@@ -5,6 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>활동 기록 · 알바트로스냅</title>
 <link rel="icon" type="image/x-icon" href="icon2.ico">
+<meta name="description" content="알바트로스냅이 함께 담은 순간들. 출사, 번개 모임, 전시 관람까지 학기별 활동 기록과 사진을 모았습니다.">
+
+<!-- 카카오톡·SNS 링크 미리보기 (og:image 는 반드시 절대 주소여야 합니다) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="알바트로스냅">
+<meta property="og:url" content="https://dahyun-han.github.io/albatrosnap/activities.html">
+<meta property="og:title" content="활동 기록 · 알바트로스냅">
+<meta property="og:description" content="우리가 함께 담은 순간들. 출사, 번개 모임, 전시 관람까지 학기별 활동 기록과 사진.">
+<meta property="og:image" content="https://dahyun-han.github.io/albatrosnap/og.jpg">
+<meta property="og:image:width" content="2673">
+<meta property="og:image:height" content="1344">
+<meta property="og:image:alt" content="카메라를 든 알바트로스냅 마스코트">
+<meta name="twitter:card" content="summary_large_image">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
 
@@ -47,28 +60,64 @@
   .page-title span { color: var(--accent); }
   .page-desc { margin-top: 16px; font-size: 14px; color: var(--muted); line-height: 1.9; }
 
-  /* ── 연도 / 반기 선택 ──
-     해가 쌓여도 한 줄이 길어지지 않도록 연도와 반기를 따로 고른다. */
-  .picker { margin-top: 44px; display: flex; flex-direction: column; gap: 12px; }
-  .term-row { display: flex; align-items: center; gap: 14px; }
-  .row-label {
-    flex-shrink: 0; width: 30px;
-    font-size: 11px; letter-spacing: .2em; color: #5c5c5c;
+  /* ── 연도(드롭다운) + 반기(세그먼트) ──
+     해가 쌓여도 가로로 길어지지 않도록 연도는 드롭다운으로 접어 둔다. */
+  .picker {
+    margin-top: 44px;
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
   }
-  .terms { display: flex; gap: 10px; flex-wrap: wrap; }
-  /* 반기 버튼은 연도보다 한 단계 작게 */
-  #halves .term-btn { padding: 7px 18px; font-size: 13px; }
-  .term-btn {
+  .pick-label {
+    font-size: 12px; letter-spacing: .16em; color: #6a6a6a;
+    flex-shrink: 0;
+  }
+  .picker .sep { width: 1px; height: 22px; background: var(--border); margin: 0 6px; }
+
+  /* 연도 드롭다운 */
+  .year-pick { position: relative; }
+  .year-pick::after {                       /* 화살표 */
+    content: '▾';
+    position: absolute; right: 14px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 11px; color: var(--muted);
+    pointer-events: none;
+    transition: color .25s;
+  }
+  .year-pick:hover::after { color: var(--accent); }
+  .year-pick select {
+    appearance: none; -webkit-appearance: none;
     font-family: inherit;
-    background: var(--surface); border: 1px solid var(--border); color: var(--muted);
-    border-radius: 100px; padding: 10px 24px;
-    font-size: 14px; font-weight: 700; letter-spacing: .05em;
+    background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+    border-radius: 8px;
+    padding: 9px 38px 9px 16px;
+    font-size: 14px; font-weight: 700; letter-spacing: .04em;
     cursor: pointer;
-    transition: color .25s, border-color .25s, background .25s;
+    transition: border-color .25s;
   }
-  .term-btn:hover { color: var(--text); border-color: var(--accent2); }
-  .term-btn.active { background: var(--accent); border-color: var(--accent); color: #000; }
-  .term-btn .cnt { font-size: 11px; font-weight: 400; opacity: .7; margin-left: 6px; }
+  .year-pick select:hover { border-color: var(--accent2); }
+  .year-pick select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  /* 펼쳤을 때의 목록은 브라우저가 그리므로 배경색만 맞춰 준다 */
+  .year-pick option { background: var(--surface2); color: var(--text); }
+
+  /* 반기 세그먼트 — 두 칸이 한 덩어리로 붙어 있다 */
+  .seg {
+    display: inline-flex;
+    border: 1px solid var(--border); border-radius: 8px;
+    overflow: hidden;
+    background: var(--surface2);
+  }
+  .seg .term-btn {
+    font-family: inherit;
+    background: transparent; border: 0; color: var(--muted);
+    padding: 9px 18px;
+    font-size: 13px; font-weight: 700; letter-spacing: .04em;
+    cursor: pointer; white-space: nowrap;
+    transition: color .25s, background .25s;
+  }
+  .seg .term-btn + .term-btn { border-left: 1px solid var(--border); }
+  .seg .term-btn:hover { color: var(--text); background: #2c2c2c; }
+  .seg .term-btn.active { background: var(--accent); color: #000; }
+  .seg .term-btn.active:hover { background: var(--accent); }
+  .term-btn .cnt { font-size: 11px; font-weight: 400; opacity: .75; margin-left: 5px; }
 
   .term-summary {
     margin-top: 20px; padding-bottom: 20px;
@@ -78,28 +127,38 @@
   .term-summary b { color: var(--accent); font-weight: 700; }
 
   /* ── 활동 목록 ── */
-  .act-list { margin-top: 28px; display: flex; flex-direction: column; gap: 12px; }
+  .act-list { margin-top: 28px; display: flex; flex-direction: column; gap: 14px; }
+  /* 카드 높이는 모든 활동이 똑같이 고정. 사진은 잘려도 줄이 흐트러지지 않는다. */
   .act-item {
-    display: flex; align-items: center; gap: 20px;
+    display: flex; align-items: stretch; gap: 0;
+    height: 224px;
     background: var(--surface); border: 1px solid var(--border);
-    border-radius: 14px; padding: 16px 20px;
+    border-radius: 14px; padding: 0; overflow: hidden;
     cursor: pointer; text-align: left; width: 100%;
     font-family: inherit; color: inherit;
     transition: border-color .3s, transform .3s, background .3s;
   }
   .act-item:hover { border-color: var(--accent2); transform: translateX(4px); background: #1d1d1d; }
 
+  /* 썸네일은 카드 왼쪽 끝까지, 위아래로도 꽉 채운다 */
   .act-thumb {
-    width: 84px; height: 84px; flex-shrink: 0;
-    border-radius: 10px; overflow: hidden;
+    width: 320px; flex-shrink: 0;
+    height: 100%;
     background: var(--surface2);
     display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
   }
   .act-thumb img.shot { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .act-thumb .ico { font-size: 30px; opacity: .55; }
+  /* 포스터는 세로로 길고 제목이 위쪽에 있어, 가운데를 자르면 제목이 날아간다 */
+  .act-thumb img.is-poster { object-position: top; }
+  .act-thumb .ico { font-size: 48px; opacity: .5; }
 
-  .act-body { flex: 1; min-width: 0; }
-  .act-date { font-size: 11px; letter-spacing: .12em; color: var(--accent); margin-bottom: 6px; }
+  .act-body {
+    flex: 1; min-width: 0;
+    padding: 0 28px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .act-date { font-size: 11px; letter-spacing: .12em; color: var(--accent); margin-bottom: 9px; }
 
   /* 아직 다녀오지 않은 활동 표시 */
   .soon {
@@ -112,17 +171,37 @@
   .ov-date .soon { font-size: 11px; padding: 3px 11px; }
   .act-item.is-soon { border-style: dashed; }
   .act-item.is-soon .act-thumb { opacity: .85; }
-  .act-title { font-size: 16px; font-weight: 700; margin-bottom: 5px; }
-  .act-title .act-sub {
-    display: inline-block; margin-left: 10px;
-    font-size: 12px; font-weight: 400; color: var(--accent2); letter-spacing: .04em;
+  .act-title {
+    font-size: 23px; font-weight: 700; letter-spacing: -.015em;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
-  .act-meta { font-size: 12px; color: #777; display: flex; gap: 14px; flex-wrap: wrap; }
-  .act-meta span { display: inline-flex; align-items: center; gap: 5px; }
-  .act-meta .ico { font-size: 13px; }
+  /* 부제는 제목 옆이 아니라 아래 줄에 조용히 */
+  .act-sub {
+    margin-top: 7px;
+    font-size: 13px; font-weight: 400; color: #7a7a7a; letter-spacing: .02em;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
 
-  .act-go { font-size: 18px; color: var(--border); flex-shrink: 0; transition: color .3s; }
-  .act-item:hover .act-go { color: var(--accent); }
+  /* 메타는 가는 선 아래에, 항목끼리 세로선으로 나눈다 */
+  .act-meta {
+    margin-top: 20px; padding-top: 17px;
+    border-top: 1px solid var(--border);
+    font-size: 12px; color: #7a7a7a;
+    display: flex; align-items: center;
+    white-space: nowrap; overflow: hidden;
+  }
+  .act-meta span { display: inline-flex; align-items: center; gap: 6px; padding: 0 14px; }
+  .act-meta span:first-child { padding-left: 0; }
+  .act-meta span + span { border-left: 1px solid var(--border); }
+  .act-meta .ico { font-size: 14px; }
+
+  .act-go {
+    display: flex; align-items: center;
+    padding: 0 26px 0 10px;
+    font-size: 20px; color: #3a3a3a; flex-shrink: 0;
+    transition: color .3s, transform .3s;
+  }
+  .act-item:hover .act-go { color: var(--accent); transform: translateX(3px); }
 
   /* 비어있는 학기 */
   .empty {
@@ -273,17 +352,25 @@
   @media (max-width: 600px) {
     .wrap { padding: 32px 20px 72px; }
     .top-bar { margin-bottom: 32px; }
-    .terms { margin-top: 32px; gap: 8px; }
-    .term-btn { padding: 8px 18px; font-size: 13px; }
+    .picker { margin-top: 32px; gap: 8px; }
+    .picker .sep { display: none; }
+    .pick-label { font-size: 11px; letter-spacing: .12em; }
+    .year-pick select { padding: 8px 32px 8px 13px; font-size: 13px; }
+    .seg .term-btn { padding: 8px 13px; font-size: 12px; }
+    .term-btn .cnt { font-size: 10px; }
 
-    .act-item { gap: 14px; padding: 13px 15px; border-radius: 12px; }
-    .act-thumb { width: 64px; height: 64px; }
-    .act-thumb .ico { font-size: 24px; }
-    .act-title { font-size: 14px; }
-    .act-title .act-sub { display: block; margin-left: 0; margin-top: 3px; font-size: 11px; }
-    .ov-sub { font-size: 13px; }
-    .act-meta { font-size: 11px; gap: 10px; }
+    /* 좁은 화면에서는 사진을 위로 올리고 글을 아래에 쌓는다 (여기도 높이 고정) */
+    .act-item { flex-direction: column; height: 300px; border-radius: 12px; }
+    .act-item:hover { transform: none; }
+    .act-thumb { width: 100%; height: 168px; }
+    .act-thumb .ico { font-size: 40px; }
+    .act-body { flex: 1; padding: 0 18px; }
+    .act-title { font-size: 19px; }
+    .act-sub { font-size: 12px; margin-top: 5px; }
+    .act-meta { font-size: 11px; margin-top: 14px; padding-top: 13px; }
+    .act-meta span { padding: 0 9px; gap: 4px; }
     .act-go { display: none; }
+    .ov-sub { font-size: 13px; }
 
     .ov-inner { padding: 56px 20px 64px; }
     .ov-close { top: 16px; right: 16px; width: 38px; height: 38px; font-size: 18px; }
@@ -320,8 +407,13 @@
   </p>
 
   <div class="picker">
-    <div class="term-row"><span class="row-label">연도</span><div class="terms" id="years"></div></div>
-    <div class="term-row"><span class="row-label">반기</span><div class="terms" id="halves"></div></div>
+    <span class="pick-label">연도</span>
+    <div class="year-pick">
+      <select id="years" aria-label="연도 선택"></select>
+    </div>
+    <span class="sep"></span>
+    <span class="pick-label">반기</span>
+    <div class="seg" id="halves"></div>
   </div>
   <div class="term-summary" id="summary"></div>
   <div id="listArea"></div>
@@ -411,7 +503,7 @@ const TERMS = [
         date: '2026-05-03',
         title: '문래 출사',
         subtitle: 'COLOR HUNTING',
-        icon: 'palette',
+        icon: 'camera',
         place: '문래동 일대',
         time: '오후 3시',
         desc: '빨강·노랑·초록·파랑 네 팀으로 나뉘어, 각자 맡은 색을 찾아 문래동을 돌았습니다.<br>팀별로 모은 사진을 아홉 칸에 모아 붙이니 동네가 색깔별로 다시 보였어요.',
@@ -524,12 +616,12 @@ function dropIfMissing(img, box, onGone) {
 
 /* ── 연도 / 반기 선택 ── */
 
-/** 활동 목록을 'N회 · 예정 N' 같은 짧은 문구로 */
+/** 활동 목록을 '(6회)' 같은 짧은 괄호 문구로 */
 function countLabel(acts) {
   const done = acts.filter(a => !a.upcoming).length;
   const soon = acts.length - done;
-  if (done) return done + '회' + (soon ? ' · 예정 ' + soon : '');
-  return soon ? '예정 ' + soon + '건' : '준비 중';
+  if (done) return '(' + done + '회' + (soon ? ' · 예정 ' + soon : '') + ')';
+  return soon ? '(예정 ' + soon + ')' : '(준비 중)';
 }
 
 function makeBtn(parent, label, count, active, onClick) {
@@ -542,18 +634,14 @@ function makeBtn(parent, label, count, active, onClick) {
 }
 
 function renderTerms() {
+  // 연도는 드롭다운 — 해가 쌓여도 가로 폭이 늘지 않는다
   yearsEl.innerHTML = '';
   allYears().forEach(y => {
-    const acts = HALVES.flatMap(h => actsOf(y, h.n));
-    makeBtn(yearsEl, y + '년', countLabel(acts), y === curYear, () => {
-      curYear = y;
-      // 고른 연도에 지금 반기가 비어 있으면 활동이 있는 쪽으로 옮긴다
-      if (!actsOf(y, curHalf).length) {
-        const other = HALVES.find(h => actsOf(y, h.n).length);
-        if (other) curHalf = other.n;
-      }
-      render();
-    });
+    const o = document.createElement('option');
+    o.value = y;
+    o.textContent = y + '년';
+    o.selected = y === curYear;
+    yearsEl.appendChild(o);
   });
 
   halvesEl.innerHTML = '';
@@ -562,6 +650,16 @@ function renderTerms() {
       h.n === curHalf, () => { curHalf = h.n; render(); });
   });
 }
+
+// 연도를 바꿨을 때, 그 해에 지금 반기가 비어 있으면 활동이 있는 쪽으로 옮긴다
+yearsEl.addEventListener('change', e => {
+  curYear = Number(e.target.value);
+  if (!actsOf(curYear, curHalf).length) {
+    const other = HALVES.find(h => actsOf(curYear, h.n).length);
+    if (other) curHalf = other.n;
+  }
+  render();
+});
 
 /* ── 활동 목록 ── */
 function renderList() {
@@ -600,7 +698,7 @@ function renderList() {
     const cover = a.poster || (a.photos && a.photos.length ? a.photos[0] : null);
     if (cover) {
       const im = document.createElement('img');
-      im.className = 'shot';
+      im.className = 'shot' + (a.poster ? ' is-poster' : '');
       im.alt = '';
       // 썸네일이 사라지면 아이콘으로 되돌린다
       im.addEventListener('error', () => {
@@ -616,17 +714,17 @@ function renderList() {
     body.className = 'act-body';
     const meta = [];
     if (a.place)  meta.push('<span><img class="ico" src="' + iconPath('pin') + '" alt="">' + a.place + '</span>');
-    if (a.people) meta.push('<span><img class="ico" src="' + iconPath('person') + '" alt="">' + a.people + '명</span>');
     if (a.time)   meta.push('<span><img class="ico" src="' + iconPath('clock') + '" alt="">' + a.time + '</span>');
-    meta.push('<span><img class="ico" src="' + iconPath('camera') + '" alt="">' +
+    if (a.people) meta.push('<span><img class="ico" src="' + iconPath('person') + '" alt="">' + a.people + '명</span>');
+    meta.push('<span><img class="ico" src="' + iconPath('frame') + '" alt="">사진 ' +
       (a.photos && a.photos.length ? a.photos.length + '장'
-        : (a.upcoming ? '다녀온 뒤 공개' : '사진 준비 중')) + '</span>');
+        : (a.upcoming ? '준비 중' : '정리 중')) + '</span>');
 
     body.innerHTML =
       '<div class="act-date">' + fmtDate(a.date, a.endDate) +
         (a.upcoming ? '<span class="soon">예정</span>' : '') + '</div>' +
-      '<div class="act-title">' + a.title +
-        (a.subtitle ? '<span class="act-sub">' + a.subtitle + '</span>' : '') + '</div>' +
+      '<div class="act-title">' + a.title + '</div>' +
+      (a.subtitle ? '<div class="act-sub">' + a.subtitle + '</div>' : '') +
       '<div class="act-meta">' + meta.join('') + '</div>';
 
     const go = document.createElement('div');
