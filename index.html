@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>알바트로스냅</title>
-<link rel="icon" type="image/x-icon" href="icon.ico">
+<link rel="icon" type="image/x-icon" href="icon2.ico">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
 
@@ -115,6 +115,23 @@
     margin: 24px 0;
   }
 
+  /* ── 커스텀 아이콘 (이모지 대체) ── */
+  /* 크기는 부모의 font-size(1em)를 따라가므로 기존 반응형 규칙이 그대로 적용됨 */
+  .ico {
+    width: 1em;
+    height: 1em;
+    object-fit: contain;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  /* 제목·버튼 안에 글자와 나란히 들어가는 경우 */
+  .ico-inline {
+    width: 1.35em;
+    height: 1.35em;
+    vertical-align: -.32em;
+    margin-right: 8px;
+  }
+
   /* ── 슬라이드 1 : 커버 ── */
   #s1 { background: var(--bg); text-align: center; }
   #s1 .camera-icon {
@@ -136,6 +153,13 @@
     letter-spacing: .15em;
     color: var(--muted);
     margin-top: 32px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: color .25s, border-color .25s, background .25s;
+  }
+  #s1 .badge:hover {
+    color: var(--accent);
+    border-color: var(--accent);
   }
   #s1 .name-kr {
     font-size: clamp(56px, 8vw, 100px);
@@ -383,11 +407,11 @@
 
   <!-- 슬라이드 1: 커버 -->
   <div class="slide active" id="s1">
-    <div class="camera-icon">📷</div>
+    <div class="camera-icon"><img class="ico" src="icons/camera.png" alt=""></div>
     <p class="eyebrow">서강대학교 AIㆍSW 대학원 신규 동아리</p>
     <div class="name-kr">알바트로스냅</div>
     <p class="tagline">오늘 하루를 기록하고, 함께 나누는 사진 동아리</p>
-    <div class="badge">함께할 구성원 상시 모집</div>
+    <button type="button" class="badge" id="joinBadge">함께할 구성원 상시 모집</button>
   </div>
 
   <!-- 슬라이드 2: 소개 -->
@@ -419,25 +443,25 @@
     <div class="heading" style="font-size:clamp(20px,3vw,40px); margin-bottom:8px;">카톡방에서 자유롭게 소통합니다.</div>
     <div class="card-grid">
       <div class="card">
-        <div class="icon">💬</div>
+        <div class="icon"><img class="ico" src="icons/chat.png" alt=""></div>
         <div class="accent-line"></div>
         <h3>일상 사진 자유 공유</h3>
         <p>오늘 날씨 좋더라, 음식이 예쁘게 찍혔다, 고양이 만났다. 이런 사소한 순간들을 편하게 나눠주세요.</p>
       </div>
       <div class="card">
-        <div class="icon">🎯</div>
+        <div class="icon"><img class="ico" src="icons/dart.png" alt=""></div>
         <div class="accent-line"></div>
         <h3>소소한 포토 미션</h3>
         <p>종종 작은 미션을 드려요. 오늘의 점심, 퇴근길 하늘, 이번 달 최애 사진 등 가벼운 주제로 함께 찍고 나눠봐요.</p>
       </div>
       <div class="card">
-        <div class="icon">🎨</div>
+        <div class="icon"><img class="ico" src="icons/palette.png" alt=""></div>
         <div class="accent-line"></div>
         <h3>사진 스타일 & 촬영 팁 공유</h3>
         <p>필름 감성, 밝고 화사한 톤, 어두운 무드 등 마음에 드는 레퍼런스나 스타일을 알려주세요. 구도, 색감, 보정 같은 촬영 방법도 공유해서 나중에 같이 시도해봐요.</p>
       </div>
       <div class="card">
-        <div class="icon">📍</div>
+        <div class="icon"><img class="ico" src="icons/pin.png" alt=""></div>
         <div class="accent-line"></div>
         <h3>나만의 촬영 스팟 공유</h3>
         <p>내가 찾아낸 예쁜 장소, 잘 나오는 각도, 숨은 포토스팟을 공유해 주세요. 알바트로스냅만의 촬영 스팟 지도를 함께 만들어요.</p>
@@ -456,7 +480,7 @@
           <div class="tl-line"></div>
         </div>
         <div class="tl-content">
-          <h3>📸 출사</h3>
+          <h3><img class="ico ico-inline" src="icons/camera.png" alt="">출사</h3>
           <p>같은 곳에서, 저마다 다른 사진을 찍는 시간.<br>같은 풍경도 누가 찍느냐에 따라 전혀 다른 사진이 됩니다.</p>
         </div>
       </div>
@@ -466,7 +490,7 @@
           <div class="tl-line"></div>
         </div>
         <div class="tl-content">
-          <h3>🌸 인물 사진</h3>
+          <h3><img class="ico ico-inline" src="icons/person.png" alt="">인물 사진</h3>
           <p>찍는 사람과 찍히는 사람이 함께 만드는 시간.<br>사진 속 주인공이 되는 것도, 동아리의 일부입니다.</p>
         </div>
       </div>
@@ -476,7 +500,7 @@
           <div class="tl-line"></div>
         </div>
         <div class="tl-content">
-          <h3>⚡ 번개 모임</h3>
+          <h3><img class="ico ico-inline" src="icons/bolt.png" alt="">번개 모임</h3>
           <p>갑자기 가고 싶은 곳이 생겼을 때, 망설이지 않고 함께 즐기는 시간.<br>날씨 좋은 날, 여유가 생긴 오후 등 어떤 이유라도 괜찮습니다. 오늘의 모임장이 되어주세요.</p>
         </div>
       </div>
@@ -485,7 +509,7 @@
           <div class="tl-dot"></div>
         </div>
         <div class="tl-content">
-          <h3>🖼️ 사진 전시회 관람</h3>
+          <h3><img class="ico ico-inline" src="icons/frame.png" alt="">사진 전시회 관람</h3>
           <p>함께 전시를 둘러보고 이야기 나누는 시간.<br>다양한 사진을 보며 새로운 시선을 경험할 수 있습니다.</p>
         </div>
       </div>
@@ -498,28 +522,28 @@
     <div class="heading" style="font-size:clamp(20px,3vw,40px); margin-bottom:20px;">이런 분이라면 누구든 환영합니다.</div>
     <div class="member-list">
       <div class="member-item">
-        <div class="mi-icon">📷</div>
+        <div class="mi-icon"><img class="ico" src="icons/camera.png" alt=""></div>
         <div class="mi-text">
           <h3>카메라 장비를 가진 분</h3>
           <p>DSLR, 미러리스, 필름카메라 모두 환영합니다.</p>
         </div>
       </div>
       <div class="member-item">
-        <div class="mi-icon">📱</div>
+        <div class="mi-icon"><img class="ico" src="icons/phone.png" alt=""></div>
         <div class="mi-text">
           <h3>핸드폰으로 사진 찍는 걸 좋아하는 분</h3>
           <p>이미 충분히 좋은 카메라를 가지고 계십니다.</p>
         </div>
       </div>
       <div class="member-item">
-        <div class="mi-icon">🌸</div>
+        <div class="mi-icon"><img class="ico" src="icons/person.png" alt=""></div>
         <div class="mi-text">
           <h3>사진 찍히는 걸 좋아하는 분</h3>
           <p>피사체도 동아리의 중요한 멤버입니다.</p>
         </div>
       </div>
       <div class="member-item">
-        <div class="mi-icon">🖼️</div>
+        <div class="mi-icon"><img class="ico" src="icons/frame.png" alt=""></div>
         <div class="mi-text">
           <h3>예쁜 사진 보는 걸 좋아하는 분</h3>
           <p>직접 찍지 않아도, 감상하고 반응하는 것만으로도 충분합니다.</p>
@@ -534,19 +558,19 @@
     <div class="heading" style="font-size:clamp(20px,3vw,40px); margin-bottom:20px;">원우회 지원금은 이렇게 사용해요.</div>
     <div class="member-list">
       <div class="member-item">
-        <div class="mi-icon">🎟️</div>
+        <div class="mi-icon"><img class="ico" src="icons/ticket.png" alt=""></div>
         <div class="mi-text"><h3>전시회 입장권</h3></div>
       </div>
       <div class="member-item">
-        <div class="mi-icon">☕</div>
+        <div class="mi-icon"><img class="ico" src="icons/coffee.png" alt=""></div>
         <div class="mi-text"><h3>카페 음료</h3></div>
       </div>
       <div class="member-item">
-        <div class="mi-icon">🖥️</div>
+        <div class="mi-icon"><img class="ico" src="icons/monitor.png" alt=""></div>
         <div class="mi-text"><h3>보정 프로그램</h3></div>
       </div>
       <div class="member-item">
-        <div class="mi-icon">🖼️</div>
+        <div class="mi-icon"><img class="ico" src="icons/polaroid.png" alt=""></div>
         <div class="mi-text"><h3>인화 / 포토북</h3></div>
       </div>
     </div>
@@ -559,9 +583,9 @@
       <div class="a-label">참여 방법</div>
       <div class="a-value">카카오톡 오픈채팅</div>
       <a href="https://open.kakao.com/o/gNlWzTli" target="_blank" class="kakao-btn">
-        💬 오픈채팅 바로가기
+        <img class="ico ico-inline" src="icons/chat2.png" alt="">오픈채팅 바로가기
       </a>
-      <div style="margin-top:16px; font-size:12px; color:var(--muted); letter-spacing:.1em;">🔒 입장 비밀번호 : <span style="color:var(--accent); font-weight:700;">snap</span></div>
+      <div style="margin-top:16px; font-size:12px; color:var(--muted); letter-spacing:.1em;"><img class="ico ico-inline" src="icons/lock.png" alt="">입장 비밀번호 : <span style="color:var(--accent); font-weight:700;">snap</span></div>
     </div>
   </div>
 
@@ -598,6 +622,9 @@
     document.getElementById('cur').textContent = cur + 1;
     slides[cur].scrollTop = 0;
   }
+
+  // 커버의 "함께할 구성원 상시 모집" → 마지막 슬라이드(참여 방법)로 이동
+  document.getElementById('joinBadge').addEventListener('click', () => go(total - 1));
 
   document.getElementById('prev').addEventListener('click', () => go(cur - 1));
   document.getElementById('next').addEventListener('click', () => go(cur + 1));
