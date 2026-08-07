@@ -41,6 +41,14 @@
     min-height: 100vh;
   }
 
+  /* 사진 저장 억제 — 꾹 누르기 메뉴, 드래그, 선택을 막는다.
+     완전한 보호는 아니고(주소를 알면 받을 수 있다) 무심코 저장하는 걸 막는 정도다. */
+  img {
+    -webkit-touch-callout: none;      /* iOS 롱프레스 메뉴 */
+    -webkit-user-drag: none;
+    user-select: none; -webkit-user-select: none;
+  }
+
   .ico { width: 1em; height: 1em; object-fit: contain; display: inline-block; flex-shrink: 0; }
   .ico-inline { width: 1.35em; height: 1.35em; vertical-align: -.32em; margin-right: 8px; }
 
@@ -365,12 +373,13 @@
     transition: opacity .25s;
   }
   .lightbox.open { opacity: 1; pointer-events: all; }
+  .lb-stage { position: relative; display: flex; }
   .lightbox img {
     max-width: 90vw; max-height: 84vh; object-fit: contain; border-radius: 6px;
-    /* 스와이프할 때 이미지가 끌리거나 선택되지 않도록 */
-    user-select: none; -webkit-user-select: none; -webkit-user-drag: none;
     touch-action: pan-y;
   }
+  /* 사진 위에 투명한 층을 덮는다. 꾹 눌러도 이미지가 아니라 이 층이 잡힌다. */
+  .lb-shield { position: absolute; inset: 0; }
   .lb-nav {
     position: absolute; top: 50%; transform: translateY(-50%);
     width: 52px; height: 52px; border-radius: 50%;
@@ -488,7 +497,10 @@
 <div class="lightbox" id="lightbox">
   <button type="button" class="lb-nav lb-close" id="lbClose" aria-label="닫기">✕</button>
   <button type="button" class="lb-nav lb-prev" id="lbPrev" aria-label="이전">←</button>
-  <img id="lbImg" src="" alt="">
+  <div class="lb-stage">
+    <img id="lbImg" src="" alt="">
+    <div class="lb-shield"></div>   <!-- 사진 위를 덮어 꾹 누르기 대상이 되지 않게 -->
+  </div>
   <button type="button" class="lb-nav lb-next" id="lbNext" aria-label="다음">→</button>
   <div class="lb-count" id="lbCount"></div>
 </div>
@@ -992,6 +1004,19 @@ document.getElementById('lbPrev').addEventListener('click', () => showLb(lbIdx -
 document.getElementById('lbNext').addEventListener('click', () => showLb(lbIdx + 1));
 
 overlay.addEventListener('click', e => { if (e.target === overlay) closeGallery(); });
+
+/* ── 사진 저장 억제 ──
+   이미지 위에서만 우클릭·롱프레스 메뉴와 드래그를 막는다. 페이지 전체를 막으면
+   뒤로가기 같은 정상적인 동작까지 불편해진다.
+   주소를 직접 열거나 화면을 캡처하는 것까지는 막을 수 없다. */
+document.addEventListener('contextmenu', e => {
+  if (e.target.tagName === 'IMG' || e.target.classList.contains('lb-shield')) {
+    e.preventDefault();
+  }
+});
+document.addEventListener('dragstart', e => {
+  if (e.target.tagName === 'IMG') e.preventDefault();
+});
 
 /* ── 모바일 스와이프로 사진 넘기기 ── */
 let swiped = false, tx = 0, ty = 0;
