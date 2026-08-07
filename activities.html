@@ -363,15 +363,24 @@
     .term-btn .cnt { font-size: 10px; }
 
     /* 좁은 화면에서는 사진을 위로 올리고 글을 아래에 쌓는다 (여기도 높이 고정) */
-    .act-item { flex-direction: column; height: 300px; border-radius: 12px; }
+    /* 장소가 길면 메타가 두 줄이 되므로 그만큼 높이를 넉넉히 잡는다 */
+    .act-item { flex-direction: column; height: 340px; border-radius: 12px; }
     .act-item:hover { transform: none; }
-    .act-thumb { width: 100%; height: 168px; }
+    .act-thumb { width: 100%; height: 170px; }
     .act-thumb .ico { font-size: 40px; }
-    .act-body { flex: 1; padding: 0 18px; }
+    /* 사진이 위로 올라간 세로 카드라, 글도 가운데로 모은다 */
+    .act-body { flex: 1; padding: 0 18px; text-align: center; }
     .act-title { font-size: 19px; }
     .act-sub { font-size: 12px; margin-top: 5px; }
-    .act-meta { font-size: 11px; margin-top: 14px; padding-top: 13px; }
-    .act-meta span { padding: 0 9px; gap: 4px; }
+    .act-meta {
+      font-size: 11px; margin-top: 14px; padding-top: 13px;
+      justify-content: center;
+      flex-wrap: wrap; white-space: normal;
+      gap: 5px 14px;
+    }
+    /* 줄이 바뀌면 세로 구분선이 줄 맨 앞에 남으므로, 모바일에서는 간격으로만 나눈다 */
+    .act-meta span { padding: 0; gap: 4px; }
+    .act-meta span + span { border-left: 0; }
     .act-go { display: none; }
     .ov-sub { font-size: 13px; }
 
