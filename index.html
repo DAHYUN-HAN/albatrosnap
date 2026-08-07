@@ -197,6 +197,38 @@
   #s1 .badge:visited,
   .kakao-btn:visited { color: #1a1408; }
 
+  /* 커버 버튼 위를 빛줄기가 왼쪽에서 오른쪽으로 훑고 지나간다.
+     버튼 본체가 아니라 ::before 띠를 움직이므로 호버 효과와 겹치지 않는다. */
+  #s1 .badge {
+    position: relative;
+    z-index: 0;                /* 쌓임 맥락을 만들어 빛줄기를 글자 뒤로 보낸다 */
+    overflow: hidden;          /* 빛줄기를 알약 모양 안으로 자른다 */
+  }
+  #s1 .badge::before {
+    content: '';
+    position: absolute;
+    z-index: -1;               /* 배경 위, 글자 아래 */
+    top: -20%; left: 0;
+    width: 30%; height: 140%;
+    /* 밝은 금색 위라 흰빛은 대비가 거의 없다. 가운데를 완전한 흰색으로 세운다. */
+    background: linear-gradient(90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, .95) 50%,
+      rgba(255, 255, 255, 0) 100%);
+    transform: translateX(-170%) skewX(-18deg);
+    /* 주기의 앞 20%(약 0.55초) 동안만 빠르게 훑고, 나머지는 밖에서 쉰다 */
+    animation: badgeShine 2.8s ease-out infinite;
+    pointer-events: none;
+  }
+  @keyframes badgeShine {
+    0%        { transform: translateX(-170%) skewX(-18deg); }
+    20%, 100% { transform: translateX(430%) skewX(-18deg); }
+  }
+  /* 움직임을 줄이도록 설정한 사용자에게는 빛줄기를 감춘다 */
+  @media (prefers-reduced-motion: reduce) {
+    #s1 .badge::before { display: none; }
+  }
+
   /* 보조 안내 — 버튼 아래 한 줄, 눌리기는 하되 조용하게 */
   #s1 .cover-note {
     background: none; border: 0; padding: 2px 0;
