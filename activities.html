@@ -659,9 +659,20 @@ const allYears = () => [...new Set(TERMS.map(t => t.year))].sort((a, b) => a - b
 const termOf   = (y, h) => TERMS.find(t => t.year === y && t.half === h);
 const actsOf   = (y, h) => (termOf(y, h) || {}).activities || [];
 
-// 가장 최근 연도에서, 활동이 있는 반기를 기본으로 연다
+/* 처음 열었을 때 보여줄 반기.
+   HALF2_FROM_MONTH 월이 되면 하반기로, 그전에는 상반기로 연다.
+   9 로 두면 9월 1일부터 자동으로 하반기가 먼저 보인다 — 숫자만 바꾸면 시점이 바뀐다. */
+const HALF2_FROM_MONTH = 9;
+
+function defaultHalf(year) {
+  const now = new Date();
+  let h = (now.getFullYear() === year && now.getMonth() + 1 >= HALF2_FROM_MONTH) ? 2 : 1;
+  if (!actsOf(year, h).length) h = (h === 1 ? 2 : 1);   // 비어 있으면 반대쪽으로
+  return h;
+}
+
 let curYear = allYears()[allYears().length - 1];
-let curHalf = actsOf(curYear, 2).length ? 2 : 1;
+let curHalf = defaultHalf(curYear);
 
 let lbList = [];
 let lbIdx = 0;
