@@ -548,7 +548,27 @@ function seq(dir, n, ext) {
     dir + '/' + String(i + 1).padStart(2, '0') + '.' + ext);
 }
 
+/* TERMS:START */
 const TERMS = [
+  {
+    year: 2026, half: 2,
+    activities: [
+      {
+        date: '2026-08-08',
+        endDate: '2026-08-09',
+        title: '강릉 출사',
+        subtitle: 'GANGNEUNG TRAVEL NOTE',
+        icon: 'camera',
+        place: '강릉',
+        time: '1박 2일',
+        desc: '여름방학을 맞아 평소보다 조금 멀리 떠난 1박 2일 출사. 바다와 강릉의 다양한 풍경을 배경으로 사진을 찍고,<br>맛있는 것도 먹으며 함께 시간을 보냈습니다.',
+        thumb: 'photos/2026/h2/0808-gangneung/thumb.jpg',
+        poster: 'photos/2026/h2/0808-gangneung/poster.jpg',
+        notice: seq('photos/2026/h2/0808-gangneung/notice', 9),
+        photos: seq('photos/2026/h2/0808-gangneung', 141)
+      }
+    ]
+  },
   {
     year: 2026, half: 1,
     activities: [
@@ -560,9 +580,9 @@ const TERMS = [
         place: '창경궁',
         time: '오후 3시',
         desc: '마니또를 정해 서로의 인생샷을 찍어주는 미션 출사.<br>여덟 가지 미션을 들고 창경궁을 돌았습니다.<br>찍는 사람도, 찍히는 사람도 주인공이 된 하루였어요.',
+        thumb: 'photos/2026/h1/0606-changgyeong/thumb.jpg',
         poster: 'photos/2026/h1/0606-changgyeong/poster.jpg',
         notice: seq('photos/2026/h1/0606-changgyeong/notice', 9),
-        thumb: 'photos/2026/h1/0606-changgyeong/thumb.jpg',
         photos: seq('photos/2026/h1/0606-changgyeong', 21)
       },
       {
@@ -580,8 +600,8 @@ const TERMS = [
         place: '문래동 일대',
         time: '오후 3시',
         desc: '빨강·노랑·초록·파랑 네 팀으로 나뉘어, 각자 맡은 색을 찾아 문래동을 돌았습니다.<br>팀별로 모은 사진을 아홉 칸에 모아 붙이니 동네가 색깔별로 다시 보였어요.',
-        poster: 'photos/2026/h1/0503-mullae/poster.jpg',
         thumb: 'photos/2026/h1/0503-mullae/thumb.jpg',
+        poster: 'photos/2026/h1/0503-mullae/poster.jpg',
         photos: seq('photos/2026/h1/0503-mullae', 40)
       },
       {
@@ -612,32 +632,14 @@ const TERMS = [
         place: '안목가돈 · 마포세빛문화숲',
         time: '오후 6시 30분',
         desc: '동아리의 첫 번개. 저녁을 먹고 한강변으로 나가 마포의 야경을 담았습니다.',
-        poster: 'photos/2026/h1/0402-mapo/poster.jpg',
         thumb: 'photos/2026/h1/0402-mapo/thumb.jpg',
+        poster: 'photos/2026/h1/0402-mapo/poster.jpg',
         photos: seq('photos/2026/h1/0402-mapo', 31)
-      }
-    ]
-  },
-  {
-    year: 2026, half: 2,
-    activities: [
-      {
-        date: '2026-08-08',
-        endDate: '2026-08-09',
-        title: '강릉 출사',
-        subtitle: 'GANGNEUNG TRAVEL NOTE',
-        icon: 'camera',
-        place: '강릉',
-        time: '1박 2일',
-        desc: '여름방학을 맞아 평소보다 조금 멀리 떠난 1박 2일 출사. 바다와 강릉의 다양한 풍경을 배경으로 사진을 찍고,<br>맛있는 것도 먹으며 함께 시간을 보냈습니다.',
-        thumb: 'photos/2026/h2/0808-gangneung/thumb.jpg',
-        poster: 'photos/2026/h2/0808-gangneung/poster.jpg',
-        notice: seq('photos/2026/h2/0808-gangneung/notice', 9),
-        photos: seq('photos/2026/h2/0808-gangneung', 121)
       }
     ]
   }
 ];
+/* TERMS:END */
 
 /* ═══════════════ 이 아래는 수정하지 않아도 됩니다 ═══════════════ */
 
@@ -660,13 +662,22 @@ const termOf   = (y, h) => TERMS.find(t => t.year === y && t.half === h);
 const actsOf   = (y, h) => (termOf(y, h) || {}).activities || [];
 
 /* 처음 열었을 때 보여줄 반기.
-   HALF2_FROM_MONTH 월이 되면 하반기로, 그전에는 상반기로 연다.
-   9 로 두면 9월 1일부터 자동으로 하반기가 먼저 보인다 — 숫자만 바꾸면 시점이 바뀐다. */
+      3월 ~  8월  →  상반기
+      9월 ~ 12월  →  하반기
+      1월 ~  2월  →  하반기 (아직 지난 학기를 보는 시기라 그대로 둔다)
+   숫자만 바꾸면 전환 시점이 바뀐다. */
+const HALF1_FROM_MONTH = 3;
 const HALF2_FROM_MONTH = 9;
 
 function defaultHalf(year) {
   const now = new Date();
-  let h = (now.getFullYear() === year && now.getMonth() + 1 >= HALF2_FROM_MONTH) ? 2 : 1;
+  const m = now.getMonth() + 1;
+  let h;
+  if (now.getFullYear() === year) {
+    h = (m >= HALF2_FROM_MONTH || m < HALF1_FROM_MONTH) ? 2 : 1;
+  } else {
+    h = 2;                    // 지난 해를 볼 때는 늦은 쪽부터
+  }
   if (!actsOf(year, h).length) h = (h === 1 ? 2 : 1);   // 비어 있으면 반대쪽으로
   return h;
 }
