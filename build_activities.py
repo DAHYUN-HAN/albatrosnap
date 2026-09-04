@@ -32,6 +32,8 @@ HTML = BASE / "activities.html"
 ICONS = BASE / "icons"
 PHOTOS = BASE / "photos"
 
+IMG_EXTS = {".jpg", ".jpeg", ".png"}   # 그 밖의 확장자는 원본으로 보고 알려 준다
+
 START = "/* TERMS:START */"
 END = "/* TERMS:END */"
 
@@ -105,8 +107,15 @@ def check(a):
     if a.get("people") and not a["people"].isdigit():
         errors.append(f"{where}: 인원은 숫자만 적어주세요 → {a['people']}")
 
-    if a.get("endDate") and not DATE_RE.match(a["endDate"]):
-        errors.append(f"{where}: 종료일은 2026-08-09 형식이어야 합니다 → {a['endDate']}")
+    if a.get("endDate"):
+        if not DATE_RE.match(a["endDate"]):
+            errors.append(f"{where}: 종료일은 2026-08-09 형식이어야 합니다 → {a['endDate']}")
+            a.pop("endDate")
+        elif a["endDate"] == a.get("date"):
+            # 하루짜리 활동. 그대로 두면 '08.30 ~ 08.30' 으로 나온다
+            a.pop("endDate")
+        elif a["endDate"] < a.get("date", ""):
+            errors.append(f"{where}: 종료일이 날짜보다 빠릅니다 → {a['date']} ~ {a['endDate']}")
 
     if a.get("date") and not DATE_RE.match(a["date"]):
         errors.append(f"{where}: 날짜는 2026-04-02 형식이어야 합니다 → {a['date']}")
@@ -128,6 +137,24 @@ def check(a):
     if n == 0 and not a.get("upcoming"):
         warnings.append(f"{where}: 사진이 한 장도 없습니다")
 
+    def special(name):
+        """thumb / poster 를 확장자 상관없이 찾는다. sync 전이면 알려 준다."""
+        found = sorted(f for f in folder.glob(f"{name}.*")
+                       if f.is_file() and f.suffix.lower() in IMG_EXTS)
+        if not found:
+            return None
+        f = found[0]
+        if f.suffix.lower() != ".jpg":
+            warnings.append(f"{where}: {f.name} 은 JPEG 이 아닙니다 — "
+                            f"sync_photos.py 를 먼저 실행하세요")
+        return f"{rel}/{f.name}"
+
+    strays = sorted({p.suffix.lower() for p in folder.iterdir()
+                     if p.is_file() and p.suffix.lower() not in IMG_EXTS})
+    if strays:
+        warnings.append(f"{where}: 사진이 아닌 파일이 섞여 있습니다 → "
+                        f"{' '.join(strays)} (원본은 폴더 밖에 두세요)")
+
     notice = folder / "notice"
     n_notice = len([p for p in notice.iterdir()
                     if p.is_file() and p.suffix.lower() == ".jpg" and p.stem.isdigit()]
@@ -136,8 +163,8 @@ def check(a):
     return {
         "year": year, "half": half, "rel": rel, "icon": icon,
         "photos": n, "notice": n_notice,
-        "thumb": (folder / "thumb.jpg").exists(),
-        "poster": (folder / "poster.jpg").exists(),
+        "thumb": special("thumb"),
+        "poster": special("poster"),
         **{k: v for k, v in a.items() if k != "_block"},
     }
 
@@ -180,9 +207,9 @@ def render(acts):
             if a.get("note"):
                 L.append(f"        note: {js(a['note'])},")
             if a["thumb"]:
-                L.append(f"        thumb: {js(a['rel'] + '/thumb.jpg')},")
+                L.append(f"        thumb: {js(a['thumb'])},")
             if a["poster"]:
-                L.append(f"        poster: {js(a['rel'] + '/poster.jpg')},")
+                L.append(f"        poster: {js(a['poster'])},")
             if a["notice"]:
                 L.append(f"        notice: seq({js(a['rel'] + '/notice')}, {a['notice']}),")
             L.append(f"        photos: seq({js(a['rel'])}, {a['photos']})")

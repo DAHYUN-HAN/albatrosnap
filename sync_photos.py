@@ -123,11 +123,15 @@ def tidy(folder: Path) -> int:
         else:
             probe.rename(dst)
 
-    # 썸네일·포스터도 규격을 넘으면 줄인다 (이름은 그대로)
+    # 썸네일·포스터도 규격을 넘으면 줄인다 (이름은 그대로, 확장자는 .jpg 로)
     for special in KEEP:
-        f = folder / f"{special}.jpg"
-        if f.exists() and needs_shrink(f):
-            write_web(f, f)
+        for f in sorted(folder.glob(f"{special}.*")):
+            if not f.is_file() or f.suffix not in EXTS:
+                continue
+            dst = folder / f"{special}.jpg"
+            if needs_shrink(f):
+                write_web(f, dst)     # PNG 등은 여기서 .jpg 로 바뀐다
+            break                     # thumb.jpg 가 이미 있으면 그것만 본다
 
     return len(tmp)
 
